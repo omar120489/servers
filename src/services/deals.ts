@@ -15,6 +15,12 @@ export type Deal = {
   updated_at?: string;
 };
 
+/**
+ * List deals from the server with optional query params.
+ * Falls back to mock data in demo mode or on network error.
+ *
+ * @param params - Query parameters (page, size, sort, search, etc.)
+ */
 export const listDeals = async (params: any) => {
   // Demo mode: return mock data
   if (config.isDemoMode) {
@@ -30,6 +36,12 @@ export const listDeals = async (params: any) => {
   }
 };
 
+/**
+ * Retrieve a single deal by id.
+ * Uses mock data in demo mode.
+ *
+ * @param id - Deal identifier
+ */
 export const getDeal = async (id: number) => {
   // Demo mode: find mock deal
   if (config.isDemoMode) {
@@ -44,6 +56,12 @@ export const getDeal = async (id: number) => {
   return response.data;
 };
 
+/**
+ * Create a new deal.
+ * Simulates creation in demo mode.
+ *
+ * @param data - Partial Deal payload
+ */
 export const createDeal = async (data: Partial<Deal>) => {
   // Demo mode: simulate creation
   if (config.isDemoMode) {
@@ -63,6 +81,13 @@ export const createDeal = async (data: Partial<Deal>) => {
   return response.data;
 };
 
+/**
+ * Update an existing deal.
+ * Uses mock update in demo mode.
+ *
+ * @param id - Deal identifier
+ * @param data - Partial fields to update
+ */
 export const updateDeal = async (id: number, data: Partial<Deal>) => {
   // Demo mode: update mock deal
   if (config.isDemoMode) {
@@ -79,6 +104,12 @@ export const updateDeal = async (id: number, data: Partial<Deal>) => {
   return response.data;
 };
 
+/**
+ * Delete a deal by id.
+ * Simulates deletion in demo mode.
+ *
+ * @param id - Deal identifier
+ */
 export const deleteDeal = async (id: number) => {
   // Demo mode: simulate deletion
   if (config.isDemoMode) {
