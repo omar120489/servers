@@ -16,7 +16,15 @@ export default function Login() {
       await login(email, password);
       nav(loc?.state?.from?.pathname || '/', { replace: true });
     } catch (e: any) {
-      setErr(e?.response?.data?.detail || 'Login failed');
+      // Handle both string and array error formats (e.g., FastAPI validation errors)
+      const detail = e?.response?.data?.detail;
+      if (Array.isArray(detail)) {
+        setErr(detail.map((err: any) => err.msg || JSON.stringify(err)).join(', '));
+      } else if (typeof detail === 'string') {
+        setErr(detail);
+      } else {
+        setErr('Login failed');
+      }
     }
   };
 

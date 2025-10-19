@@ -1,10 +1,11 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import api from '../services/api';
+import { api } from '../api/client';
+import type { User } from '../types/crm';
 
 interface AuthState {
   loading: boolean;
   error?: string;
-  user?: any;
+  user?: User;
   isAuthenticated: boolean;
 }
 
@@ -13,10 +14,13 @@ const initialState: AuthState = {
   isAuthenticated: !!localStorage.getItem('access_token')
 };
 
-export const login = createAsyncThunk('auth/login', async (payload: { email: string; password: string }) => {
+type LoginPayload = { email: string; password: string };
+type LoginResponse = { access_token: string; refresh_token?: string; user: User };
+
+export const login = createAsyncThunk<LoginResponse, LoginPayload>('auth/login', async (payload) => {
   const { data } = await api.post('/auth/login', payload);
   localStorage.setItem('access_token', data.access_token);
-  return data;
+  return data as LoginResponse;
 });
 
 const authSlice = createSlice({

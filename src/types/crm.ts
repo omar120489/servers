@@ -13,6 +13,14 @@ export interface User extends BaseEntity {
   role?: 'admin' | 'sales_manager' | 'sales_rep';
 }
 
+export interface Score {
+  overall: number;
+  health: number;
+  engagement: number;
+  urgency: number;
+  conversion: number;
+}
+
 export type LeadStatus = 'new' | 'contacted' | 'qualified' | 'lost' | 'converted';
 export interface Lead extends BaseEntity {
   first_name?: string;
@@ -21,7 +29,8 @@ export interface Lead extends BaseEntity {
   phone?: string;
   company?: string;
   status?: LeadStatus;
-  score?: number;
+  score?: number; // Keep for backward compatibility
+  scores?: Score; // New multi-score system
   owner_id?: ID;
 }
 

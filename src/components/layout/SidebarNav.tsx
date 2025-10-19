@@ -11,6 +11,7 @@ import DashboardIcon from '@mui/icons-material/Dashboard';
 import ContactPageIcon from '@mui/icons-material/ContactPage';
 import BusinessIcon from '@mui/icons-material/Business';
 import ViewKanbanIcon from '@mui/icons-material/ViewKanban';
+import TimelineIcon from '@mui/icons-material/Timeline';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import BarChartIcon from '@mui/icons-material/BarChart';
 import NotificationsIcon from '@mui/icons-material/Notifications';
@@ -20,6 +21,7 @@ import RuleIcon from '@mui/icons-material/Rule';
 import LinkIcon from '@mui/icons-material/Link';
 import FactCheckIcon from '@mui/icons-material/FactCheck';
 import PersonIcon from '@mui/icons-material/Person';
+import PaletteIcon from '@mui/icons-material/Palette';
 import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
 
@@ -32,10 +34,11 @@ interface NavItem {
 
 const navItems: NavItem[] = [
   { label: 'Dashboard', icon: <DashboardIcon />, href: '/dashboard' },
+  { label: 'Leads', icon: <ContactPageIcon />, href: '/leads' },
+  { label: 'Deals', icon: <ViewKanbanIcon />, href: '/deals' },
   { label: 'Contacts', icon: <ContactPageIcon />, href: '/contacts' },
   { label: 'Companies', icon: <BusinessIcon />, href: '/companies' },
-  { label: 'Deals', icon: <ViewKanbanIcon />, href: '/deals' },
-  { label: 'Pipeline', icon: <ViewKanbanIcon />, href: '/pipeline' },
+  { label: 'Pipeline', icon: <TimelineIcon />, href: '/pipeline' },
   { label: 'Activities', icon: <FactCheckIcon />, href: '/activities' },
   { label: 'Reports', icon: <BarChartIcon />, href: '/reports' },
   { label: 'Calendar', icon: <CalendarMonthIcon />, href: '/calendar' },
@@ -48,6 +51,7 @@ const navItems: NavItem[] = [
       { label: 'Roles', icon: <RuleIcon />, href: '/admin/roles' },
       { label: 'Webhooks', icon: <LinkIcon />, href: '/admin/webhooks' },
       { label: 'Audit Log', icon: <FactCheckIcon />, href: '/admin/audit-log' },
+      { label: 'Visualization', icon: <PaletteIcon />, href: '/admin/visualization' },
       { label: 'Settings', icon: <SettingsIcon />, href: '/settings' },
       { label: 'Profile', icon: <PersonIcon />, href: '/profile' },
     ],

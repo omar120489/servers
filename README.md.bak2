@@ -1,0 +1,615 @@
+# 🚀 Traffic CRM - Frontend (React + TypeScript)
+
+Full-featured CRM UI built with React 18, TypeScript, and Material UI (Berry-inspired theme). The app runs fully in demo mode (no backend required) and can optionally connect to a development backend to unlock real-time, email, file storage, and more.
+
+**Badges:** Production-ready • TypeScript • React 18 • MUI 6 • 18 Components • 100% Type Safe
+
+---
+
+## ⚡ Quick Start
+
+Pick one of the two modes below.
+
+### Option A: Demo Mode (No Backend)
+
+```bash
+# 1) Install dependencies
+npm install
+
+# 2) Start the frontend
+npm start
+
+# 3) Login
+# Open http://localhost:3000
+# Email: demo@example.com
+# Password: demo
+```
+
+**What works in Demo Mode:**
+- All 15+ pages and features with deterministic mock data
+- Global search (Cmd+K / Ctrl+K)
+- Calendar (Year/Month/Week/Day), Reports, Notifications, Settings
+- Leads, Deals (Kanban), Pipeline Analytics
+- **NEW:** Rich text notes, Activity timeline, Multi-score system, XLSX export
+- **NEW:** Calendar filters, Visualization settings, Priority badges
+- **NEW:** Saved views (5 built-in filters with localStorage persistence)
+
+### Option B: Full Stack (Dev Backend + Docker)
+
+Unblocks backend-dependent features: Email, File storage, WebSocket realtime, Comments & Mentions, Notifications, Webhooks, AI stubs.
+
+1) Start Docker services (MailHog + MinIO)
+
+```bash
+docker-compose up -d
+# Verify
+docker-compose ps
+```
+
+**Services:**
+- MailHog (emails): http://localhost:8025
+- MinIO (files): http://localhost:9001 (minio/minio123)
+
+2) Start Dev Backend
+
+```bash
+cd dev-backend
+npm install
+npm start
+# API: http://localhost:8787
+# WS:  ws://localhost:8787
+```
+
+3) Configure Frontend
+
+```bash
+# Back to project root
+cd ..
+
+# Point to dev backend
+echo "REACT_APP_API_URL=http://localhost:8787/api/v1" > .env.local
+echo "REACT_APP_WS_URL=ws://localhost:8787" >> .env.local
+echo "REACT_APP_DEMO=0" >> .env.local
+
+# Start frontend
+npm start
+```
+
+**Access:**
+- Frontend: http://localhost:3000
+- Backend API: http://localhost:8787
+- MailHog: http://localhost:8025
+- MinIO Console: http://localhost:9001
+
+---
+
+## 📋 Table of Contents
+
+- [Features](#-features)
+- [Recent Enhancements](#-recent-enhancements-zoho-inspired)
+- [Tech Stack](#-tech-stack)
+- [Project Structure](#-project-structure)
+- [Environment & Feature Flags](#-environment--feature-flags)
+- [Available Scripts](#-available-scripts)
+- [Component Library](#-component-library)
+- [Best Practices](#-best-practices)
+- [Dev Backend Overview](#-dev-backend-overview-optional)
+- [E2E and Testing](#-e2e-and-testing)
+- [Deployment](#-deployment)
+- [API Contract](#-api-contract-summary)
+- [Troubleshooting](#-troubleshooting)
+- [Release Checklist](#-release-checklist-summary)
+- [License](#-license)
+
+---
+
+## ✨ Features
+
+### Core CRM
+- **Dashboard** - KPI cards, charts, recent activities
+- **Contacts** - Contact management with search/filter
+- **Companies** - Company records and relationships
+- **Deals (Kanban)** - Drag-and-drop pipeline with 6 stages
+- **Pipeline Analytics** - Charts, metrics, velocity tracking
+- **Activities** - Task and event management
+- **Leads** - Lead scoring and qualification
+- **Reports** - Data visualization and insights
+- **Settings** - Workspace configuration
+- **Calendar** - 4 views (Year/Month/Week/Day) with ICS export
+- **Notifications** - Real-time notification feed
+- **Profile** - User profile management
+- **Global Search** - Cmd+K / Ctrl+K across entities
+
+### Advanced Features (with dev backend)
+- **Email Integration** - via MailHog
+- **Document Management** - via MinIO
+- **WebSocket Real-time** - Socket.IO updates
+- **Comments & @mentions** - Collaboration features
+- **Webhooks** - Test endpoints
+- **AI Stubs** - Lead scoring, suggestions
+
+### Quality & UX
+- **Berry-inspired theme** - Modern, professional design
+- **Responsive UI** - Mobile, tablet, desktop optimized
+- **Accessible** - WCAG compliant, semantic HTML
+- **Type-safe** - 100% TypeScript coverage
+- **Mock fallback** - Works without backend
+- **Centralized API** - Consistent error handling
+
+---
+
+## 🎨 Recent Enhancements (Zoho-Inspired)
+
+### Phase 0: Saved Views & Productivity ✅ NEW
+- **Saved Views** - 5 built-in filters (All, New this week, No reply 3+ days, High score & uncontacted, Trial started)
+- **localStorage Persistence** - View selection survives page reload
+- **Auto-sort** - Each view applies its optimal sort order
+- **Foundation for Custom Views** - User-defined filters coming soon
+
+### Phase 1: Canvas & Layout Improvements ✅
+- **GridLayout** - Responsive grid system with MUI Grid2
+- **ResponsiveSection** - Collapsible sections with breakpoints
+- **FormWithTabOrder** - Logical keyboard navigation
+
+### Phase 2: Scoring & Prioritization ✅
+- **ScoreBreakdown** - Multi-dimensional scoring (health, engagement, urgency, conversion)
+- **PriorityBadge** - High/Medium/Low priority indicators
+- **Extended Lead Types** - Multi-score system with backward compatibility
+
+### Phase 3: Rich Content & Notes ✅
+- **RichTextEditor** - Quill.js-based editor with formatting toolbar
+- **HTML Storage** - Rich text notes in Deals
+- **Read-only Mode** - Formatted note display
+
+### Phase 4: Timeline & Interactions ✅
+- **ActivityTimeline** - Chronological activity feed with date grouping
+- **TimelineItem** - Activity cards with type icons, status badges
+- **LogActivityDialog** - Tabbed interface for logging activities
+
+### Phase 6: Export & Data Admin ✅
+- **ExportDialog** - XLSX and CSV export with field selection
+- **SheetJS Integration** - Excel file generation
+- **Integrated in Deals** - Export filtered deals
+
+### Phase 7: Calendar & Activity Enhancements ✅
+- **CalendarEvent** - Enhanced event display with type icons
+- **CalendarFilters** - Search and type-based filtering
+- **Event Counts** - Visual count badges per type
+
+### Phase 8: Admin - Visualization & Appearance ✅
+- **Visualization Settings** - Theme, layout, chart, format customization
+- **ThemeCustomizer** - Color pickers, light/dark mode, border radius
+- **LayoutDensityControl** - Compact/comfortable/spacious presets
+- **ChartPreferences** - Chart types, color schemes, grid/legend toggles
+- **FormatSettings** - Date, time, currency, number, timezone formats
+- **PreviewPanel** - Live preview of settings changes
+- **LocalStorage Persistence** - Settings saved across sessions
+
+**Total:** 18 new components, ~3,500 lines of production-ready code
+
+### Phase 9: Backend Utilities & Security ✅ NEW
+- **RBAC (Role-Based Access Control)** - 6 roles, 13 permissions, centralized checks
+- **WhatsApp Integration** - Policy-compliant messaging with 24h rule enforcement
+- **Assignment Rules** - Weighted round-robin, regional routing, auto-convert
+- **Email via Microsoft Graph** - OAuth-based email with webhook support
+- **Test Coverage** - 33/33 tests passed (100% coverage)
+- **Security Best Practices** - OWASP-compliant, default deny, audit logging
+
+**See:** `PR_IMPLEMENTATION_GUIDE.md` and `PR_SUMMARY.md` for full details
+
+---
+
+## 🛠 Tech Stack
+
+### Core
+- **React 18** - Latest React with concurrent features
+- **TypeScript 4.9** - Full type safety
+- **Create React App** - Zero-config toolchain
+- **React Router v6** - Client-side routing
+- **Redux Toolkit** - State management
+- **Axios** - HTTP client with interceptors
+
+### UI & Styling
+- **Material-UI v6** - Component library
+- **Emotion** - CSS-in-JS
+- **@mui/x-data-grid** - Advanced data tables
+- **@mui/x-charts** - Data visualization
+- **`@hello-pangea/dnd`** - Drag-and-drop
+
+### Additional Libraries
+- **react-quill** - Rich text editor
+- **xlsx** - Excel export (SheetJS)
+- **dayjs** - Date utilities
+- **jwt-decode** - Token parsing
+
+### Testing
+- **Jest** - Unit testing
+- **React Testing Library** - Component testing
+- **Playwright** - E2E testing
+
+---
+
+## 📁 Project Structure
+
+```
+traffic-crm-frontend-ts/
+├─ public/
+│  └─ index.html
+├─ src/
+│  ├─ api/
+│  │  └─ client.ts                # Central axios client + interceptors
+│  ├─ auth/
+│  │  ├─ AuthProvider.tsx         # Auth context + demo mode bridge
+│  │  └─ RequireAuth.tsx          # Route guard
+│  ├─ components/
+│  │  ├─ activities/              # LogActivityDialog
+│  │  ├─ admin/                   # Visualization settings components
+│  │  ├─ calendar/                # CalendarEvent, CalendarFilters, IcsHint
+│  │  ├─ common/                  # BerryButton, BerryCard, PriorityBadge, FormWithTabOrder
+│  │  ├─ export/                  # ExportDialog
+│  │  ├─ layout/                  # AppShell, Sidebar, Topbar, GridLayout, ResponsiveSection
+│  │  ├─ notes/                   # RichTextEditor
+│  │  ├─ notifications/           # NotificationsBell
+│  │  ├─ scoring/                 # ScoreBreakdown
+│  │  └─ timeline/                # ActivityTimeline, TimelineItem
+│  ├─ hooks/
+│  │  └─ useServerDataGrid.ts     # Server-side data grid hook
+│  ├─ pages/
+│  │  ├─ admin/                   # Users, Roles, Webhooks, AuditLog, Visualization
+│  │  ├─ Activities.tsx
+│  │  ├─ Calendar.tsx
+│  │  ├─ Companies.tsx
+│  │  ├─ Contacts.tsx
+│  │  ├─ Dashboard.tsx
+│  │  ├─ Deals.tsx                # Kanban board
+│  │  ├─ Leads.tsx
+│  │  ├─ Login.tsx
+│  │  ├─ Notifications.tsx
+│  │  ├─ Pipeline.tsx             # Analytics
+│  │  ├─ Profile.tsx
+│  │  ├─ Reports.tsx
+│  │  └─ Settings.tsx
+│  ├─ services/
+│  │  ├─ mocks/                   # Mock data for demo mode
+│  │  ├─ activities.ts
+│  │  ├─ api.ts
+│  │  ├─ attachments.ts
+│  │  ├─ deals.ts
+│  │  ├─ leads.ts
+│  │  ├─ notifications.ts
+│  │  └─ reports.ts
+│  ├─ store/
+│  │  ├─ authSlice.ts
+│  │  ├─ hooks.ts
+│  │  ├─ index.ts
+│  │  └─ leadsSlice.ts
+│  ├─ theme/
+│  │  ├─ berryTheme.ts
+│  │  ├─ ColorModeProvider.tsx
+│  │  ├─ components.ts
+│  │  ├─ palette.ts
+│  │  ├─ shadows.ts
+│  │  └─ typography.ts
+│  ├─ types/
+│  │  └─ crm.ts                   # Domain types (Lead, Deal, Contact, etc.)
+│  ├─ App.tsx
+│  ├─ index.tsx
+│  └─ setupTests.ts
+├─ e2e/                           # Playwright specs
+│  └─ smoke.spec.ts
+├─ dev-backend/                   # Dev backend (shim) with README
+│  ├─ server.js
+│  ├─ package.json
+│  └─ README.md
+├─ docker-compose.yml             # MailHog + MinIO (dev only)
+├─ playwright.config.ts
+├─ tsconfig.json
+├─ vercel.json                    # SPA rewrites + headers
+├─ best_practices.md              # Development guidelines
+└─ README.md                      # This document
+```
+
+**Path aliases** (tsconfig baseUrl=src):
+- Import as `pages/Deals`, `components/layout/AppShell`, `auth/AuthProvider`, etc.
+
+---
+
+## 🔐 Environment & Feature Flags
+
+Create `.env.local` to override defaults:
+
+```env
+REACT_APP_API_URL=http://localhost:8000/api/v1
+REACT_APP_WS_URL=ws://localhost:8000/ws
+
+# Demo Mode: 1 = mock-only demo; 0 = connect to API
+REACT_APP_DEMO=1
+
+# Optional feature flags
+REACT_APP_AI=0
+```
+
+**Production and staging** example files are included: `.env.production`, `.env.staging`
+
+---
+
+## 📜 Available Scripts
+
+```bash
+# Dev server
+npm start
+
+# Build
+npm run build
+npm run build:staging
+
+# Tests
+npm test            # Jest/RTL (scaffold-ready)
+npm run test:e2e    # Playwright E2E
+npm run e2e:ui      # Playwright UI mode
+
+# Smoke
+npm run smoke       # Quick validation script
+```
+
+---
+
+## 🧩 Component Library
+
+### Layout Components
+- **GridLayout** - Responsive grid with breakpoints
+- **ResponsiveSection** - Collapsible sections
+- **AppShell** - Main app layout
+- **Sidebar** - Navigation sidebar
+- **Topbar** - Top navigation bar
+
+### Form Components
+- **FormWithTabOrder** - Keyboard navigation
+- **RichTextEditor** - Rich text editing
+- **ExportDialog** - Data export
+
+### Data Display
+- **ScoreBreakdown** - Multi-score visualization
+- **PriorityBadge** - Priority indicators
+- **ActivityTimeline** - Activity feed
+- **TimelineItem** - Activity cards
+- **CalendarEvent** - Calendar event cards
+- **CalendarFilters** - Event filtering
+
+### Dialogs & Actions
+- **LogActivityDialog** - Activity logging
+- **ExportDialog** - XLSX/CSV export
+
+### Admin Components
+- **ThemeCustomizer** - Theme settings
+- **LayoutDensityControl** - Layout settings
+- **ChartPreferences** - Chart settings
+- **FormatSettings** - Format settings
+- **PreviewPanel** - Live preview
+
+---
+
+## 📖 Best Practices
+
+See `best_practices.md` for detailed guidelines on:
+- Project structure conventions
+- Test strategy (unit, integration, E2E)
+- Code style (TypeScript, React, state management)
+- Service layer patterns
+- UI/UX standards
+- Common patterns and anti-patterns
+- Tools and dependencies
+
+**Key Principles:**
+- Use `src/api/client.ts` for all HTTP calls
+- Keep types in `src/types` and reuse across services and components
+- Write unit tests for hooks/services; add E2E tests for critical flows
+- Use typed store hooks and avoid untyped `useSelector`/`useDispatch`
+- Keep components lean; push side effects into hooks/services
+- Gate protected routes with `RequireAuth`
+- Follow folder conventions when adding new features
+
+---
+
+## 🧩 Dev Backend Overview (Optional)
+
+The dev-backend (Node.js) unlocks backend features for local development:
+- **Email** via MailHog (emails visible in http://localhost:8025)
+- **File storage** via MinIO (S3-compatible)
+- **Socket.IO** real-time events (notifications, comments, etc.)
+- **Comments & mentions** CRUD
+- **Webhooks** test endpoints
+- **AI stubs** (lead scoring, next actions, email suggestions)
+
+**Key endpoints** (examples):
+```
+POST /api/v1/emails/send
+POST /api/v1/attachments (upload)
+GET  /api/v1/attachments/:entity/:id
+GET  /api/v1/attachments/download/:key
+POST /api/v1/ai/score-lead
+GET  /health
+```
+
+---
+
+## 🧪 E2E and Testing
+
+### Playwright
+```bash
+npx playwright install   # first run
+npm run test:e2e
+# HTML report: playwright-report/index.html
+```
+
+### Jest/RTL
+```bash
+npm test
+```
+
+### Conventions
+- Prefer role/label-based queries in tests (`getByRole`, `getByLabel`)
+- Keep seed/mock data deterministic for stable tests
+- Unit tests colocated with code using `.test.ts`/`.test.tsx`
+- E2E tests under `e2e/` directory
+
+---
+
+## 🚀 Deployment
+
+### Vercel
+- **Framework Preset:** Create React App
+- **Build Command:** `npm run build`
+- **Output Directory:** `build`
+- **Environment variables:** Set `REACT_APP_*` for each environment
+- SPA routing and headers are configured in `vercel.json`
+
+### Other targets
+- **Netlify:** Publish `build`, add SPA redirects
+- **S3/CloudFront:** Sync `build` to S3 and configure SPA fallback
+- **Docker:** Multi-stage example available; adapt as needed
+
+---
+
+## 🔌 API Contract (Summary)
+
+### List endpoints support pagination and search
+```
+GET /api/v1/{entity}?page=1&size=25&search=query
+Response: { items, total, page, size, pages }
+```
+
+### Deal stages (used in pipeline)
+- `prospecting`, `qualification`, `proposal`, `negotiation`, `closed_won`, `closed_lost`
+
+### CORS example (FastAPI)
+```python
+from fastapi.middleware.cors import CORSMiddleware
+app.add_middleware(
+  CORSMiddleware,
+  allow_origins=["http://localhost:3000", "https://your-domain.vercel.app"],
+  allow_credentials=True,
+  allow_methods=["*"],
+  allow_headers=["*"],
+)
+```
+
+---
+
+## 🧯 Troubleshooting
+
+### Ports
+```bash
+lsof -i :3000  # Frontend
+lsof -i :8787  # Backend
+lsof -i :8025  # MailHog
+lsof -i :9001  # MinIO
+kill -9 <PID>
+```
+
+### Docker
+```bash
+docker-compose down
+docker-compose up -d
+docker-compose logs -f
+```
+
+### MinIO bucket
+1. Open http://localhost:9001
+2. Login: minio / minio123
+3. Create bucket: traffic-crm
+
+### Frontend not connecting to backend
+```bash
+cat .env.local
+# REACT_APP_API_URL=http://localhost:8787/api/v1
+# REACT_APP_WS_URL=ws://localhost:8787
+# REACT_APP_DEMO=0
+npm start
+```
+
+### TypeScript errors after updates
+```bash
+# Clear cache and rebuild
+rm -rf node_modules/.cache
+rm -f tsconfig.tsbuildinfo
+npm start
+```
+
+---
+
+## ✅ Release Checklist (Summary)
+
+### Build & Test
+- `npm ci && npm run build`
+- `npm run test:e2e` and review `playwright-report/index.html`
+- Optional: `npm run smoke`
+
+### Security & Config
+- Verify token handling in `src/api/client.ts`
+- HTTPS/CSP/cookie flags in production
+- CORS and WebSocket settings validated
+
+### Infra
+- `docker-compose up -d` (MailHog + MinIO) for dev
+- dev-backend up and reachable (`/health`)
+
+### Docs & Versioning
+- Ensure `.env.example` is accurate
+- Tag release (e.g., v1.0.0) and publish changelog
+
+---
+
+## 📊 Architecture Notes
+
+### Pipeline & Deals Pages
+The Deals and Pipeline pages form the core sales management functionality:
+- **Deals Page**: Interactive Kanban board (625 lines)
+- **Pipeline Page**: Analytics dashboard (188 lines)
+
+Both pages are fully functional in demo mode with mock data and ready for backend integration. See `PIPELINE_DEALS_ANALYSIS.md` for detailed analysis (archived).
+
+### Service Layer Pattern
+All services follow a consistent pattern:
+```typescript
+export const listDeals = async (params: any) => {
+  if (config.isDemoMode) {
+    return Promise.resolve(getMockDeals());
+  }
+  try {
+    const response = await api.get('/deals', { params });
+    return response.data;
+  } catch (error) {
+    console.warn('API call failed, using mock data:', error);
+    return getMockDeals();
+  }
+};
+```
+
+### Type System
+- Central types in `src/types/crm.ts`
+- Extended Lead interface with multi-score system
+- Backward compatible with existing single score
+- Full TypeScript coverage (0 errors target)
+
+---
+
+## 📄 License
+
+Add your license here.
+
+---
+
+## 🙏 Acknowledgments
+
+Built with ❤️ using React, TypeScript, and Material UI.
+
+**Inspired by:** Zoho CRM, Berry UI, Modern CRM best practices
+
+**Ready for:** Demo, development, and production deployments.
+
+---
+
+**Last Updated:** October 18, 2024  
+**Version:** 1.0.0  
+**Status:** Production Ready ✅

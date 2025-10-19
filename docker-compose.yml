@@ -1,0 +1,42 @@
+version: "3.8"
+
+services:
+  # MailHog - SMTP mail capture for development
+  mailhog:
+    image: mailhog/mailhog:latest
+    container_name: traffic-crm-mailhog
+    ports:
+      - "1025:1025" # SMTP server
+      - "8025:8025" # Web UI
+    networks:
+      - traffic-crm-dev
+
+  # MinIO - S3-compatible object storage
+  minio:
+    image: quay.io/minio/minio:latest
+    container_name: traffic-crm-minio
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: minio
+      MINIO_ROOT_PASSWORD: minio123
+    ports:
+      - "9000:9000" # API
+      - "9001:9001" # Console
+    volumes:
+      - minio_data:/data
+    networks:
+      - traffic-crm-dev
+    # cspell:disable-next-line
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+
+networks:
+  traffic-crm-dev:
+    driver: bridge
+
+volumes:
+  minio_data:
+    driver: local
