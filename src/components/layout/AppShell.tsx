@@ -23,11 +23,21 @@ export default function AppShell({ children }: { children?: React.ReactNode }) {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
+  const mainRef = React.useRef<HTMLElement>(null);
+
   return (
     <Box sx={{ display: 'flex' }}>
       <Topbar onMenu={toggle} onSearch={() => setSearchOpen(true)} />
       <Sidebar open={open} onClose={toggle} />
-      <Box component="main" sx={{ flexGrow: 1 }}>
+      <Box
+        component="main"
+        ref={mainRef}
+        id="main-content"
+        tabIndex={-1}
+        sx={{ flexGrow: 1, outline: 'none' }}
+        role="main"
+        aria-label="Main content"
+      >
         <Toolbar />
         <Container maxWidth="xl" sx={{ py: 3 }}>
           {children ?? <Outlet />}

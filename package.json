@@ -4,11 +4,11 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
+    "start": "craco start",
+    "build": "craco build",
     "build:staging": "env-cmd -f .env.staging npm run build",
     "build:production": "npm run build",
-    "test": "react-scripts test --env=jsdom",
+    "test": "craco test --env=jsdom",
     "eject": "react-scripts eject",
     "lint": "echo 'Add ESLint config if desired'",
     "smoke": "./smoke_test.sh",
@@ -25,6 +25,8 @@
     "@mui/x-charts": "^7.18.0",
     "@mui/x-data-grid": "^7.18.0",
     "@reduxjs/toolkit": "^2.2.3",
+    "@tanstack/react-query": "^5.90.5",
+    "@tanstack/react-query-devtools": "^5.90.2",
     "axios": "^1.12.2",
     "dayjs": "^1.11.18",
     "jwt-decode": "^4.0.0",
@@ -35,9 +37,12 @@
     "react-router-dom": "^6.23.1",
     "react-scripts": "5.0.1",
     "react-transition-group": "^4.4.5",
+    "web-vitals": "^5.1.0",
     "xlsx": "^0.18.5"
   },
   "devDependencies": {
+    "@craco/craco": "^7.1.0",
+    "@module-federation/enhanced": "^0.20.0",
     "@playwright/test": "^1.56.1",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.0",
@@ -46,6 +51,7 @@
     "@types/node": "^24.8.1",
     "@types/react": "^18.2.74",
     "@types/react-dom": "^18.2.24",
+    "source-map-explorer": "^2.5.3",
     "typescript": "4.9.5"
   },
   "browserslist": {
@@ -58,6 +64,11 @@
       "last 1 chrome version",
       "last 1 firefox version",
       "last 1 safari version"
+    ]
+  },
+  "jest": {
+    "transformIgnorePatterns": [
+      "/node_modules/(?!axios)/"
     ]
   }
 }

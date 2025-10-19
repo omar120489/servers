@@ -7,6 +7,7 @@ import {
   ListItemText,
   Collapse,
 } from '@mui/material';
+import { prefetchMap, canPrefetch } from 'utils/prefetch';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import ContactPageIcon from '@mui/icons-material/ContactPage';
 import BusinessIcon from '@mui/icons-material/Business';
@@ -72,6 +73,14 @@ export default function SidebarNav() {
     return location.pathname === href || location.pathname.startsWith(href + '/');
   };
 
+  // Prefetch page on hover for faster navigation
+  // Respects Save-Data and slow networks
+  const handlePrefetch = (href?: string) => {
+    if (href && prefetchMap[href] && canPrefetch()) {
+      prefetchMap[href]();
+    }
+  };
+
   return (
     <List component="nav" sx={{ px: 1 }}>
       {navItems.map((item, index) => {
@@ -91,6 +100,7 @@ export default function SidebarNav() {
                       sx={{ pl: 4 }}
                       selected={isActive(child.href)}
                       onClick={() => child.href && navigate(child.href)}
+                      onPointerEnter={() => handlePrefetch(child.href)}
                     >
                       <ListItemIcon sx={{ minWidth: 40 }}>{child.icon}</ListItemIcon>
                       <ListItemText primary={child.label} />
@@ -107,6 +117,7 @@ export default function SidebarNav() {
             key={item.href}
             selected={isActive(item.href)}
             onClick={() => item.href && navigate(item.href)}
+            onPointerEnter={() => handlePrefetch(item.href)}
           >
             <ListItemIcon sx={{ minWidth: 40 }}>{item.icon}</ListItemIcon>
             <ListItemText primary={item.label} />

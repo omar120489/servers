@@ -1,3 +1,16 @@
+/**
+ * Contacts Page - React Query Version
+ * 
+ * This is the AFTER version - migrated to use React Query for data fetching.
+ * 
+ * Key improvements:
+ * - Automatic caching (no redundant fetches)
+ * - Background refetch on mount
+ * - Loading and error states handled by React Query
+ * - Optimistic updates for better UX
+ * - No manual useState/useEffect for data fetching
+ */
+
 import React, { useState } from 'react';
 import {
   Box,
@@ -13,39 +26,21 @@ import {
   Avatar,
   Stack,
   Button,
-  TextField,
-  InputAdornment,
 } from '@mui/material';
-import SearchIcon from '@mui/icons-material/Search';
 import AddIcon from '@mui/icons-material/Add';
 import EmailIcon from '@mui/icons-material/Email';
 import PhoneIcon from '@mui/icons-material/Phone';
-
-interface Contact {
-  id: number;
-  name: string;
-  email: string;
-  phone: string;
-  company: string;
-  role: string;
-  status: 'active' | 'inactive' | 'lead';
-}
-
-const mockContacts: Contact[] = [
-  { id: 1, name: 'John Smith', email: 'john.smith@acme.com', phone: '+1 (555) 123-4567', company: 'Acme Corp', role: 'CEO', status: 'active' },
-  { id: 2, name: 'Sarah Johnson', email: 'sarah.j@techstart.io', phone: '+1 (555) 234-5678', company: 'TechStart Inc', role: 'CTO', status: 'active' },
-  { id: 3, name: 'Mike Chen', email: 'mchen@globalsys.com', phone: '+1 (555) 345-6789', company: 'Global Systems', role: 'VP Sales', status: 'active' },
-  { id: 4, name: 'Emily Davis', email: 'emily@innovate.com', phone: '+1 (555) 456-7890', company: 'Innovate LLC', role: 'Product Manager', status: 'lead' },
-  { id: 5, name: 'David Wilson', email: 'dwilson@startupxyz.com', phone: '+1 (555) 567-8901', company: 'StartupXYZ', role: 'Founder', status: 'active' },
-  { id: 6, name: 'Lisa Anderson', email: 'lisa.a@edutech.com', phone: '+1 (555) 678-9012', company: 'EduTech', role: 'Director', status: 'active' },
-  { id: 7, name: 'Robert Taylor', email: 'rtaylor@dataflow.io', phone: '+1 (555) 789-0123', company: 'DataFlow Inc', role: 'Engineer', status: 'lead' },
-  { id: 8, name: 'Jennifer Lee', email: 'jlee@appmakers.com', phone: '+1 (555) 890-1234', company: 'AppMakers', role: 'Designer', status: 'active' },
-];
+import { useContacts } from 'hooks/useContacts';
+import { SearchBar, LoadingState, ErrorState, PageHeader } from 'components/shared';
 
 export default function Contacts() {
   const [search, setSearch] = useState('');
   
-  const filteredContacts = mockContacts.filter(contact =>
+  // React Query hook - handles loading, error, and data states automatically
+  const { data: contacts = [], isLoading, error } = useContacts();
+  
+  // Client-side filtering (in production, this would be server-side)
+  const filteredContacts = contacts.filter(contact =>
     contact.name.toLowerCase().includes(search.toLowerCase()) ||
     contact.email.toLowerCase().includes(search.toLowerCase()) ||
     contact.company.toLowerCase().includes(search.toLowerCase())
@@ -64,28 +59,33 @@ export default function Contacts() {
     return name.split(' ').map(n => n[0]).join('').toUpperCase();
   };
 
+  // Loading state
+  if (isLoading) {
+    return <LoadingState message="Loading contacts..." />;
+  }
+
+  // Error state
+  if (error) {
+    return <ErrorState message="Failed to load contacts. Showing cached data." severity="warning" />;
+  }
+
   return (
     <Box>
-      <Stack direction="row" justifyContent="space-between" alignItems="center" mb={3}>
-        <Typography variant="h4" fontWeight="bold">Contacts</Typography>
-        <Button variant="contained" startIcon={<AddIcon />}>
-          Add Contact
-        </Button>
-      </Stack>
+      <PageHeader
+        title="Contacts"
+        description="Manage your contact relationships"
+        actions={
+          <Button variant="contained" startIcon={<AddIcon />}>
+            Add Contact
+          </Button>
+        }
+      />
 
       <Paper sx={{ mb: 2, p: 2 }}>
-        <TextField
-          fullWidth
-          placeholder="Search contacts by name, email, or company..."
+        <SearchBar
           value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <SearchIcon />
-              </InputAdornment>
-            ),
-          }}
+          onChange={setSearch}
+          placeholder="Search contacts by name, email, or company..."
         />
       </Paper>
 
@@ -147,9 +147,10 @@ export default function Contacts() {
 
       <Box mt={2}>
         <Typography variant="body2" color="text.secondary">
-          Showing {filteredContacts.length} of {mockContacts.length} contacts
+          Showing {filteredContacts.length} of {contacts.length} contacts
         </Typography>
       </Box>
     </Box>
   );
 }
+

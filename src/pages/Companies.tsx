@@ -10,15 +10,13 @@ import {
   Avatar,
   Stack,
   Button,
-  TextField,
-  InputAdornment,
   LinearProgress,
 } from '@mui/material';
-import SearchIcon from '@mui/icons-material/Search';
 import AddIcon from '@mui/icons-material/Add';
 import BusinessIcon from '@mui/icons-material/Business';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import PeopleIcon from '@mui/icons-material/People';
+import { SearchBar, PageHeader } from 'components/shared';
 
 interface Company {
   id: number;
@@ -73,12 +71,14 @@ export default function Companies() {
 
   return (
     <Box>
-      <Stack direction="row" justifyContent="space-between" alignItems="center" mb={3}>
-        <Typography variant="h4" fontWeight="bold">Companies</Typography>
-        <Button variant="contained" startIcon={<AddIcon />}>
-          Add Company
-        </Button>
-      </Stack>
+      <PageHeader
+        title="Companies"
+        actions={
+          <Button variant="contained" startIcon={<AddIcon />}>
+            Add Company
+          </Button>
+        }
+      />
 
       <Grid container spacing={2} mb={3}>
         <Grid item xs={12} md={4}>
@@ -129,18 +129,10 @@ export default function Companies() {
       </Grid>
 
       <Paper sx={{ mb: 2, p: 2 }}>
-        <TextField
-          fullWidth
-          placeholder="Search companies by name or industry..."
+        <SearchBar
           value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <SearchIcon />
-              </InputAdornment>
-            ),
-          }}
+          onChange={setSearch}
+          placeholder="Search companies by name or industry..."
         />
       </Paper>
 

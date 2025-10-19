@@ -1,0 +1,8 @@
+node_modules
+build
+coverage
+.vercel
+*.md
+package-lock.json
+yarn.lock
+

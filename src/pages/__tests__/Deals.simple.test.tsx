@@ -1,25 +1,63 @@
 import { render, screen } from '@testing-library/react';
-import { BrowserRouter } from 'react-router-dom';
+import { createMemoryRouter, RouterProvider } from 'react-router-dom';
 import '@testing-library/jest-dom';
 import Deals from '../Deals';
 
-// Mock the API client
-jest.mock('../../api/client', () => ({
-  apiClient: {
-    get: jest.fn(),
-    post: jest.fn(),
-    put: jest.fn(),
-    delete: jest.fn(),
-  },
+// Mock axios to prevent ESM import errors
+jest.mock('axios');
+
+// Mock React Query hooks with proper data structure
+jest.mock('../../hooks/useDeals', () => ({
+  useDeals: () => ({
+    data: {
+      data: [
+        { id: 1, title: 'Test Deal', value: 50000, stage: 'Prospecting', company: 'Test Co', contact: 'John Doe', probability: 50, expectedCloseDate: '2024-12-31' },
+      ],
+      total: 1,
+    },
+    isLoading: false,
+    error: null,
+  }),
+  useBulkUpdateDeals: () => ({
+    mutate: jest.fn(),
+    isPending: false,
+  }),
+  useBulkDeleteDeals: () => ({
+    mutate: jest.fn(),
+    isPending: false,
+  }),
 }));
 
 describe('Deals Page - Simple Tests', () => {
   const renderDeals = () => {
-    return render(
-      <BrowserRouter>
-        <Deals />
-      </BrowserRouter>
-    );
+    // Define routes for the test
+    const routes = [
+      {
+        path: '/deals',
+        element: <Deals />,
+      },
+      // Mock route for deal details if needed
+      {
+        path: '/deals/:id',
+        element: <div>Deal Detail Page Mock</div>,
+      },
+    ];
+
+    // Create memory router with future flags to silence warnings and prepare for v7
+    const router = createMemoryRouter(routes, {
+      initialEntries: ['/deals'],
+      future: {
+        v7_startTransition: true,
+        v7_relativeSplatPath: true,
+        v7_fetcherPersist: true,
+        v7_normalizeFormMethod: true,
+        v7_partialHydration: true,
+        v7_skipActionErrorRevalidation: true,
+      },
+    });
+
+    // Render with RouterProvider and future flags
+    return render(<RouterProvider router={router} future={{ v7_startTransition: true }} />);
   };
 
   it('should render without crashing', () => {

@@ -15,6 +15,7 @@ import EventIcon from '@mui/icons-material/Event';
 import NoteIcon from '@mui/icons-material/Note';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import AddIcon from '@mui/icons-material/Add';
+import { PageHeader } from 'components/shared';
 
 interface Activity {
   id: number;
@@ -135,12 +136,14 @@ export default function Activities() {
 
   return (
     <Box>
-      <Stack direction="row" justifyContent="space-between" alignItems="center" mb={3}>
-        <Typography variant="h4" fontWeight="bold">Activities</Typography>
-        <Button variant="contained" startIcon={<AddIcon />}>
-          Log Activity
-        </Button>
-      </Stack>
+      <PageHeader
+        title="Activities"
+        actions={
+          <Button variant="contained" startIcon={<AddIcon />}>
+            Log Activity
+          </Button>
+        }
+      />
 
       <Paper sx={{ p: 3 }}>
         <Stack spacing={3}>

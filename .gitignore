@@ -25,7 +25,9 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# Keep these for Vercel deployment
+# Keep these for deployment
 !.env.production
 !.env.staging
 
+# Deployment directories
+.deploy

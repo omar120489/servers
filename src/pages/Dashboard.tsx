@@ -107,7 +107,7 @@ export default function Dashboard() {
               <Typography variant="body2" color="text.secondary" mb={2}>
                 Revenue trend over the last 6 months
               </Typography>
-              <Box sx={{ width: '100%', height: 300 }}>
+              <Box sx={{ width: '100%', height: 300 }} data-fetchpriority="high">
                 <BarChart
                   xAxis={[{ scaleType: 'band', data: monthlyRevenue.map(d => d.month) }]}
                   series={[{ data: monthlyRevenue.map(d => d.revenue), label: 'Revenue', color: '#7367F0' }]}
