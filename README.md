@@ -2,7 +2,7 @@
 
 **Full-featured CRM UI** built with React 18, TypeScript, and Material UI (Berry-inspired theme). The app runs fully in demo mode (no backend required) and can optionally connect to a development backend to unlock real-time, email, file storage, and more.
 
-**Status**: ✅ Production Ready | 🎯 100% TypeScript | 🧪 E2E Tested | 📱 PWA Ready
+**Status**: ✅ Ready for Development | 🎯 100% TypeScript | 🧪 E2E Tested | 📱 PWA Ready
 
 ---
 
@@ -42,7 +42,7 @@ npm start
 - All 15+ pages and features with deterministic mock data
 - Global search (Cmd+K / Ctrl+K)
 - Calendar (Year/Month/Week/Day), Reports, Notifications, Settings
-- Leads, Deals (Kanban), Pipeline Analytics
+- Leads, Deals (Table), Pipeline Analytics
 - **NEW:** Rich text notes, Activity timeline, Multi-score system, XLSX export
 - **NEW:** Calendar filters, Visualization settings, Priority badges
 - **NEW:** Saved views (5 built-in filters with localStorage persistence)
@@ -189,7 +189,7 @@ npm start
 
 - **React 18** - Latest React with concurrent features
 - **TypeScript 4.9** - Full type safety
-- **Create React App** - Zero-config toolchain
+- **Create React App** - Zero-config toolchain (deprecated/maintenance mode; consider alternatives; see React docs: <https://react.dev/learn/start-a-new-react-project#alternatives-to-create-react-app>)
 - **React Router v6** - Client-side routing
 - **Redux Toolkit** - State management
 - **Axios** - HTTP client with interceptors
@@ -326,7 +326,7 @@ traffic-crm-frontend-ts/
 #### Known Issues ⚠️
 
 - **Assignment Tests** (0/6 failing) - Import/export issues, low priority
-- **Deals E2E Tests** (0/28 failing) - Outdated due to page rebuild
+- **Deals E2E Tests** (0/28 passing) - Outdated due to page rebuild
 
 ### Running Tests
 
@@ -677,4 +677,4 @@ Built with ❤️ using React, TypeScript, and Material UI.
 
 **Last Updated:** October 18, 2025  
 **Version:** 1.0.0  
-**Status:** Production Ready ✅
+**Status:** Ready for Development ✅
