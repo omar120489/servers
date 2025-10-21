@@ -1,0 +1,33 @@
+# Exclude heavy and minified sources from indexing/scanning
+node_modules/
+.bazel/
+.cache/
+.tmp/
+.logs/
+
+# Build artifacts
+build/
+dist/
+coverage/
+playwright-report/
+storybook-static/
+
+# Lock and logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Generated assets
+*.min.js
+*.min.css
+*.chunk.js
+*.bundle.js
+
+# Dependencies and lock files
+package-lock.json
+yarn.lock
+
+# Misc
+.DS_Store
+.git/

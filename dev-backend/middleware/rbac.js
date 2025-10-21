@@ -42,6 +42,8 @@
  * CREATE INDEX idx_acl_resource ON acl_grants(resource);
  */
 
+const { logger } = require('../logger.js');
+
 // Mock permission check (replace with actual DB queries)
 const ROLE_PERMISSIONS = {
   SDR: ['lead:read', 'lead:write', 'lead.timeline:read', 'lead.timeline:write'],
@@ -89,7 +91,7 @@ function requirePermission(permission) {
       
       if (!hasPermission) {
         // Log access denial for audit
-        console.warn(`[RBAC] Access denied: user=${req.user.id} permission=${permission} resource=${req.path}`);
+        logger.warn(`[RBAC] Access denied: user=${req.user.id} permission=${permission} resource=${req.path}`);
         
         return res.status(403).json({ 
           error: 'Forbidden',
@@ -98,11 +100,11 @@ function requirePermission(permission) {
       }
       
       // Log successful access for audit
-      console.info(`[RBAC] Access granted: user=${req.user.id} permission=${permission} resource=${req.path}`);
+      logger.info(`[RBAC] Access granted: user=${req.user.id} permission=${permission} resource=${req.path}`);
       
       next();
     } catch (error) {
-      console.error('[RBAC] Permission check failed:', error);
+      logger.error('[RBAC] Permission check failed', error);
       res.status(500).json({ error: 'Internal server error' });
     }
   };
@@ -125,7 +127,7 @@ function requireAnyPermission(permissions) {
       );
       
       if (!checks.some(Boolean)) {
-        console.warn(`[RBAC] Access denied: user=${req.user.id} permissions=${permissions.join(',')} resource=${req.path}`);
+        logger.warn(`[RBAC] Access denied: user=${req.user.id} permissions=${permissions.join(',')} resource=${req.path}`);
         
         return res.status(403).json({ 
           error: 'Forbidden',
@@ -135,7 +137,7 @@ function requireAnyPermission(permissions) {
       
       next();
     } catch (error) {
-      console.error('[RBAC] Permission check failed:', error);
+      logger.error('[RBAC] Permission check failed', error);
       res.status(500).json({ error: 'Internal server error' });
     }
   };
@@ -158,7 +160,7 @@ function requireAllPermissions(permissions) {
       );
       
       if (!checks.every(Boolean)) {
-        console.warn(`[RBAC] Access denied: user=${req.user.id} permissions=${permissions.join(',')} resource=${req.path}`);
+        logger.warn(`[RBAC] Access denied: user=${req.user.id} permissions=${permissions.join(',')} resource=${req.path}`);
         
         return res.status(403).json({ 
           error: 'Forbidden',
@@ -168,7 +170,7 @@ function requireAllPermissions(permissions) {
       
       next();
     } catch (error) {
-      console.error('[RBAC] Permission check failed:', error);
+      logger.error('[RBAC] Permission check failed', error);
       res.status(500).json({ error: 'Internal server error' });
     }
   };
@@ -180,4 +182,3 @@ module.exports = {
   requireAnyPermission,
   requireAllPermissions,
 };
-

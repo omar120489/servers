@@ -1,0 +1,2 @@
+import{a as t,b as s,c,d as r}from"./axios-D-DgzO2k.js";const e="/api/deals";async function i(a){return t(e,{params:a})}async function o(a){return t(`${e}/${a}`)}async function u(a){return r(e,a)}async function l(a,n){return c(`${e}/${a}`,n)}async function p(a){return s(`${e}/${a}`)}const f={listDeals:i,getDeal:o,createDeal:u,updateDeal:l,deleteDeal:p};export{f as d};
+//# sourceMappingURL=deals-iLL9qn1F.js.map

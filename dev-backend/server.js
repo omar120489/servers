@@ -4,11 +4,14 @@ import multer from 'multer';
 import nodemailer from 'nodemailer';
 import AWS from 'aws-sdk';
 import { createServer } from 'http';
-import { Server } from 'socket.io';
+import { createRequire } from 'module';
+const require = createRequire(import.meta.url);
+const { Server } = require('socket.io');
 import { v4 as uuidv4 } from 'uuid';
+import { logger } from './logger.js';
 
 const app = express();
-const PORT = 8787;
+const PORT = process.env.DEV_BACKEND_PORT || 8787;
 
 // Middleware
 app.use(cors());
@@ -47,7 +50,7 @@ app.post('/api/v1/emails/send', async (req, res) => {
       text
     });
     
-    console.log('📧 Email sent:', { to, subject, messageId: info.messageId });
+    logger.info('📧 Email sent', { to, subject, messageId: info.messageId });
     
     // Emit WebSocket notification
     io.emit('email:sent', { to, subject, timestamp: new Date() });
@@ -58,7 +61,7 @@ app.post('/api/v1/emails/send', async (req, res) => {
       preview: `http://localhost:8025` 
     });
   } catch (error) {
-    console.error('Email error:', error);
+    logger.error('Email error', error);
     res.status(500).json({ error: error.message });
   }
 });
@@ -87,11 +90,11 @@ const BUCKET_NAME = 'traffic-crm';
 async function ensureBucket() {
   try {
     await s3.headBucket({ Bucket: BUCKET_NAME }).promise();
-    console.log(`✅ Bucket '${BUCKET_NAME}' exists`);
+    logger.info(`✅ Bucket '${BUCKET_NAME}' exists`);
   } catch (error) {
     if (error.code === 'NotFound') {
       await s3.createBucket({ Bucket: BUCKET_NAME }).promise();
-      console.log(`✅ Created bucket '${BUCKET_NAME}'`);
+      logger.info(`✅ Created bucket '${BUCKET_NAME}'`);
     }
   }
 }
@@ -134,14 +137,14 @@ app.post('/api/v1/attachments', upload.single('file'), async (req, res) => {
       created_at: new Date().toISOString()
     };
     
-    console.log('📎 File uploaded:', attachment.filename);
+    logger.info('📎 File uploaded', attachment.filename);
     
     // Emit WebSocket notification
     io.emit('attachment:uploaded', attachment);
     
     res.json(attachment);
   } catch (error) {
-    console.error('Upload error:', error);
+    logger.error('Upload error', error);
     res.status(500).json({ error: error.message });
   }
 });
@@ -167,7 +170,7 @@ app.get('/api/v1/attachments/:entity/:id', async (req, res) => {
     
     res.json(attachments);
   } catch (error) {
-    console.error('List attachments error:', error);
+    logger.error('List attachments error', error);
     res.json([]);
   }
 });
@@ -186,7 +189,7 @@ app.get('/api/v1/attachments/download/:key(*)', async (req, res) => {
     res.set('Content-Disposition', `attachment; filename="${key.split('/').pop()}"`);
     res.send(data.Body);
   } catch (error) {
-    console.error('Download error:', error);
+    logger.error('Download error', error);
     res.status(404).json({ error: 'File not found' });
   }
 });
@@ -214,7 +217,7 @@ app.post('/api/v1/comments', (req, res) => {
   
   comments.push(comment);
   
-  console.log('💬 Comment created:', comment.id);
+    logger.info('💬 Comment created', comment.id);
   
   // Emit WebSocket notification
   io.emit('comment:new', comment);
@@ -294,7 +297,7 @@ app.post('/api/v1/notifications', (req, res) => {
   
   notifications.push(notification);
   
-  console.log('🔔 Notification created:', notification.title);
+    logger.info('🔔 Notification created', notification.title);
   
   // Emit via WebSocket
   io.emit('notification:new', notification);
@@ -333,7 +336,7 @@ app.patch('/api/v1/notifications/mark-all-read', (req, res) => {
 
 // Test webhook
 app.post('/api/v1/webhooks/test', (req, res) => {
-  console.log('🪝 Webhook received:', JSON.stringify(req.body, null, 2));
+  logger.debug('🪝 Webhook received', JSON.stringify(req.body, null, 2));
   res.json({ success: true, received: req.body });
 });
 
@@ -341,7 +344,7 @@ app.post('/api/v1/webhooks/test', (req, res) => {
 app.post('/api/v1/webhooks/trigger', (req, res) => {
   const { event, data } = req.body;
   
-  console.log(`🪝 Triggering webhook: ${event}`);
+  logger.info(`🪝 Triggering webhook: ${event}`);
   
   io.emit('webhook:triggered', { event, data, timestamp: new Date() });
   
@@ -402,10 +405,10 @@ app.post('/api/v1/ai/suggest-email', (req, res) => {
 // ============================================================================
 
 io.on('connection', (socket) => {
-  console.log('🔌 Client connected:', socket.id);
+  logger.info('🔌 Client connected', socket.id);
   
   socket.on('disconnect', () => {
-    console.log('🔌 Client disconnected:', socket.id);
+    logger.info('🔌 Client disconnected', socket.id);
   });
   
   // User presence
@@ -452,30 +455,29 @@ async function startServer() {
     // Ensure MinIO bucket exists
     await ensureBucket();
     
-    httpServer.listen(PORT, () => {
-      console.log(`
+    const host = process.env.HOST || '127.0.0.1';
+    httpServer.listen(PORT, host, () => {
+      logger.info(`
 ╔════════════════════════════════════════════════════════════╗
 ║                                                            ║
 ║   🚀 Traffic CRM Dev Backend                              ║
 ║                                                            ║
-║   API Server:    http://localhost:${PORT}                    ║
-║   WebSocket:     ws://localhost:${PORT}                      ║
+║   API Server:    http://${host}:${PORT}                    ║
+║   WebSocket:     ws://${host}:${PORT}                      ║
 ║                                                            ║
 ║   📧 MailHog:     http://localhost:8025                    ║
 ║   📦 MinIO:       http://localhost:9001                    ║
 ║      (user: minio, pass: minio123)                        ║
 ║                                                            ║
-║   Health Check:  http://localhost:${PORT}/health            ║
+║   Health Check:  http://${host}:${PORT}/health            ║
 ║                                                            ║
 ╚════════════════════════════════════════════════════════════╝
       `);
     });
   } catch (error) {
-    console.error('Failed to start server:', error);
+    logger.error('Failed to start server', error);
     process.exit(1);
   }
 }
 
 startServer();
-
-

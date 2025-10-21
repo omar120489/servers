@@ -1,645 +1,354 @@
-# Traffic CRM - Micro-Frontend Architecture
+# Traffic CRM - TypeScript Edition
 
-A modern CRM platform built with React, TypeScript, and Webpack Module Federation, featuring a micro-frontend architecture for scalable, independent development and deployment.
+Enterprise-grade CRM platform with advanced marketing attribution, ROI tracking, and real-time analytics.
 
-## 🏗️ Architecture Overview
+## 🌟 Key Features
 
-This project uses **Webpack Module Federation** to create a micro-frontend architecture with four independent applications:
+- **🎯 Advanced Attribution Reporting**: Multi-touch attribution modeling with CPL, CPA, ROAS, and Net Profit tracking
+- **⚡ TypeScript-First**: 90%+ type coverage for reliability and exceptional developer experience
+- **🚀 Modern Tech Stack**: React 19, Vite 7, Material-UI 7, Redux Toolkit 2.9
+- **🔐 Multi-Auth Support**: JWT, Firebase, Auth0, AWS Cognito, Supabase
+- **🏗️ Microservices Architecture**: Separated reporting service for scalability
+- **📊 Real-time Analytics**: WebSocket infrastructure for live updates
+- **🎨 Themeable**: 6 color presets, dark mode, RTL support
+- **🌍 Multi-language**: English, French, Chinese, Romanian
+- **📋 Entity Management**: Full CRUD for Leads, Deals, Companies, and Contacts with server-side pagination
+- **✅ Form Validation**: Formik + Yup with field-level validation and pristine detection
+- **🔄 Error Handling**: Graceful 404 and network failure handling with retry/back CTAs
 
-```text
-traffic-crm-shell/          # Host application (port 3000)
-├── Routes to all micro-frontend apps
-└── Shared navigation and layout
+## 📋 Prerequisites
 
-traffic-crm-frontend-ts/    # Sales CRM (port 3001)
-├── Leads, Contacts, Companies
-├── Deals & Pipeline Management
-└── Activities & Calendar
-
-traffic-crm-marketing/      # Marketing App (port 3002)
-└── Campaign Management
-
-traffic-crm-service/        # Service App (port 3003)
-└── Support Tickets
-```
+- **Node.js**: 18.x or higher
+- **npm**: 8.x or higher
+- **Docker** (optional): For MailHog and MinIO services
 
 ## 🚀 Quick Start
 
-### Prerequisites
-
-- Node.js 18+ and npm
-- All four applications cloned as sibling directories
-
-### Installation & Running
-
-**Step 1: Install dependencies for all apps:**
+### 1. Install Dependencies
 
 ```bash
-# Shell App
-cd ../traffic-crm-shell
-npm install
-
-# Sales App
-cd ../traffic-crm-frontend-ts
-npm install
-
-# Marketing App
-cd ../traffic-crm-marketing
-npm install
-
-# Service App
-cd ../traffic-crm-service
 npm install
 ```
 
-**Step 2: Start all applications (in separate terminals):**
+### 2. Configure Environment
 
 ```bash
-# Terminal 1 - Sales App (MUST start first)
-cd ../traffic-crm-frontend-ts
-npm start
+# Copy environment template
+cp .env.example .env
 
-# Terminal 2 - Marketing App
-cd ../traffic-crm-marketing
-npm start
-
-# Terminal 3 - Service App
-cd ../traffic-crm-service
-npm start
-
-# Terminal 4 - Shell App (start last)
-cd ../traffic-crm-shell
-npm start
+# Edit .env with your configuration
+# Default ports: Frontend=3002, Backend=8787, Reporting=8006
 ```
 
-**Step 3: Access the applications:**
-
-- **Shell (integrated):** <http://localhost:3000>
-- **Sales (standalone):** <http://localhost:3001>
-- **Marketing (standalone):** <http://localhost:3002>
-- **Service (standalone):** <http://localhost:3003>
-
-### Verification Steps
-
-Once all apps are running, verify the micro-frontend integration:
-
-**1. Test Standalone Apps (Optional):**
-
-- Visit <http://localhost:3001> - Should show Sales CRM Dashboard
-- Visit <http://localhost:3002> - Should show Marketing Campaigns table
-- Visit <http://localhost:3003> - Should show Service Tickets page
-
-**2. Test Integrated Shell (Main Test):**
-
-- Visit <http://localhost:3000> - Should auto-redirect to `/sales`
-- Navigate to <http://localhost:3000/marketing> - Should show Marketing app
-- Navigate to <http://localhost:3000/service> - Should show Service app
-- Check browser console (Cmd+Opt+J / Ctrl+Shift+J) - Should have no errors
-
-**Expected Behavior:**
-
-- ✅ Shell sidebar stays visible when switching between apps
-- ✅ Each app loads without Module Federation errors
-- ✅ No `loadShareSync` or React errors in console
-- ✅ URLs change correctly (`/sales`, `/marketing`, `/service`)
-- ✅ Each micro-frontend renders its content in the main area
-
-**Quick Verification Script:**
+### 3. Check Port Availability
 
 ```bash
-# Run this to check if all apps are running
-./verify-setup.sh
+npm run check:ports
 ```
 
-## 📁 Project Structure
+If conflicts exist, edit `.env` to use different ports.
 
-### Sales App (Main CRM)
+### 4. Start Development Environment
 
-```text
-src/
-├── pages/              # Page components
-│   ├── Dashboard.tsx
-│   ├── Leads.tsx
-│   ├── Contacts.tsx
-│   ├── Companies.tsx
-│   ├── Deals.tsx
-│   └── admin/
-├── components/         # Reusable components
-│   ├── layout/        # AppShell, Sidebar, TopBar
-│   ├── leads/         # LeadsTable, LeadsFilters
-│   ├── deals/         # DealsTable, DealsFilters
-│   └── shared/        # DataGrid, ErrorBoundary
-├── hooks/             # Custom React hooks
-│   ├── useLeads.ts
-│   ├── useDeals.ts
-│   └── useContacts.ts
-├── services/          # API services
-│   ├── leads.api.ts
-│   ├── deals.api.ts
-│   └── contacts.api.ts
-├── store/             # Redux store
-├── theme/             # Material-UI theme
-├── App.tsx            # Main app component
-├── AppWrapper.tsx     # Module Federation wrapper
-└── bootstrap.tsx      # App initialization
+**Option A: All Services (Recommended)**
+```bash
+npm run dev:all
+# Starts Docker services, backend APIs, and frontend with pre-flight port check
 ```
 
-### Marketing App
-
-```text
-src/
-├── pages/
-│   └── CampaignsPage.tsx
-├── services/
-│   └── campaigns.api.ts
-├── hooks/
-│   └── useCampaigns.ts
-└── types.ts
+**Option B: Individual Services**
+```bash
+npm run dev:services   # Start MailHog + MinIO (Docker)
+npm run dev:backend    # Start Express mock API (port 8787)
+npm run dev:reporting  # Start NestJS reporting service (port 8006)
+npm start             # Start Vite frontend (port 3002)
 ```
 
-### Service App
+### 5. Access the Application
 
-```text
-src/
-├── pages/
-│   └── TicketsPage.tsx
-├── services/
-│   └── tickets.api.ts
-├── hooks/
-│   └── useTickets.ts
-└── types.ts
+- **Frontend**: http://localhost:3002
+- **MailHog UI**: http://localhost:8025
+- **MinIO Console**: http://localhost:9001
+
+Default login: `demo@example.com` / `demo`
+
+## 🏗️ Architecture
+
+### Frontend
+- **Framework**: React 19.2.0 with TypeScript
+- **Build Tool**: Vite 7.1.9 (HMR, code splitting)
+- **UI Library**: Material-UI 7.3.4
+- **State Management**: Redux Toolkit 2.9.0
+- **Routing**: React Router 7.9.3
+- **Forms**: Formik + Yup validation
+- **HTTP Client**: Axios with typed interceptors
+
+### Backend Services
+- **Dev Backend**: Express.js (port 8787)
+  - Mock CRM API endpoints
+  - MailHog email integration
+  - MinIO S3-compatible storage
+  - WebSocket support (Socket.IO)
+  - RBAC middleware
+
+- **Reporting Service**: NestJS microservice (port 8006)
+  - Attribution reporting engine
+  - Multi-touch attribution calculations
+  - ROI metrics (CPL, CPA, ROAS)
+  - TCP-based microservice communication
+
+### Infrastructure
+- **Docker Compose**: MailHog (email), MinIO (storage)
+- **Nginx**: Production web server with security headers
+- **Vercel**: Serverless deployment option
+
+## 🗺️ Application Routes
+
+### Core Entity Management
+- **`/leads`** - Leads list with search and server-side pagination
+- **`/leads/:id`** - Lead detail view with formatted data
+- **`/leads/:id/edit`** - Lead edit form (Formik + Yup validation)
+- **`/deals`** - Deals list with search and server-side pagination
+- **`/deals/:id`** - Deal detail view with currency/percentage formatting
+- **`/deals/:id/edit`** - Deal edit form with probability normalization
+- **`/companies`** - Companies list with industry/size filters
+- **`/contacts`** - Contacts list with company associations
+- **`/analytics`** - Analytics dashboard with URL-synced filters, charts, cohorts, and drill-down
+
+### Features
+- **ID Guard**: Invalid entity IDs show friendly 404 with "Back to list" button
+- **Network Retry**: Failed requests show retry/back CTAs
+- **Pristine Detection**: Save button disabled until form has changes
+- **Percentage Normalization**: Automatic conversion (0-100 UI ↔ 0-1 API)
+- **Server-side Pagination**: Efficient handling of large datasets
+- **Real-time Search**: Debounced search with instant feedback
+- **Analytics Drill-Downs**: KPI, trend, and funnel widgets hop directly into filtered entity lists
+
+### Analytics Dashboard Highlights
+- **URL-Synced Filters**: Date range, source, owner, stage, and interval hydrate from the URL and persist via localStorage between sessions.
+- **Lazy-Loaded Charts**: Line and bar charts load on demand with Suspense fallbacks to keep the main bundle lean.
+- **Consistent Drill-Down**: KPIs, trend points, and funnel bars navigate to `/leads` or `/deals` while preserving selected filters.
+- **Localized Tooltips**: Dates respect the current locale, and metric values use compact number formatting for readability.
+- **Cohort Insights**: Conversion cohorts surface alongside funnel data for quick pipeline diagnostics.
+
+## 📂 Project Structure
+
 ```
-
-## 🔧 Technology Stack
-
-### Core
-
-- **React 18** - UI library
-- **TypeScript** - Type safety
-- **Webpack Module Federation** - Micro-frontend architecture
-- **CRA Configuration Override** - Webpack customization without ejecting
-
-### State Management
-
-- **Redux Toolkit** - Global state (Sales app)
-- **React Query** - Server state & caching
-
-### UI Framework
-
-- **Material-UI (MUI)** - Component library
-- **Emotion** - CSS-in-JS styling
-
-### Routing
-
-- **React Router v6** - Client-side routing
-
-### Build Tools
-
-- **Webpack 5** - Module bundler
-- **@module-federation/enhanced** - Module Federation plugin
-
-## 🎯 Key Features
-
-### Module Federation
-
-- **Independent Deployment:** Each micro-frontend can be deployed separately
-- **Shared Dependencies:** React, React-DOM, MUI shared as singletons
-- **Runtime Integration:** Apps load dynamically at runtime
-- **Standalone Mode:** Each app works independently or within the shell
-
-### Sales CRM Features
-
-- Lead Management with filtering, sorting, bulk actions
-- Contact & Company Management
-- Deal Pipeline with Kanban view
-- Calendar & Activity tracking
-- Admin panel with RBAC
-- Audit logging
-
-### Modern Architecture
-
-- **React Query** for server state management
-- **Custom hooks** for business logic
-- **Separation of concerns:** API → Hook → Component
-- **TypeScript** for type safety
-- **Error boundaries** for graceful error handling
-- **Accessibility** features (ARIA, focus management)
-
-## 🔐 Authentication
-
-The Sales app includes authentication with:
-
-- Login page
-- Protected routes with `RequireAuth`
-- Role-based access control (RBAC)
-- Redux-based auth state
-
-**Default credentials** (for development):
-
-- Username: `admin`
-- Password: `password`
+traffic-crm-frontend-ts/
+├── src/
+│   ├── config.ts              # App configuration + enums
+│   ├── types/                 # TypeScript type definitions
+│   │   ├── api.ts            # API entities and DTOs
+│   │   ├── auth.ts           # Authentication types
+│   │   ├── config.ts         # Configuration types
+│   │   └── menu.ts           # Navigation types
+│   ├── store/                 # Redux store
+│   │   ├── index.ts          # Typed store configuration
+│   │   ├── reducer.ts        # Root reducer
+│   │   └── slices/           # Redux slices
+│   │       ├── account.ts    # Auth state
+│   │       └── snackbar.ts   # Notifications
+│   ├── contexts/              # React contexts
+│   │   ├── auth-utils.ts     # Shared auth utilities
+│   │   ├── JWTContext.tsx    # JWT authentication
+│   │   ├── FirebaseContext.tsx
+│   │   ├── Auth0Context.tsx
+│   │   ├── AWSCognitoContext.tsx
+│   │   ├── SupabaseContext.tsx
+│   │   └── ConfigContext.tsx
+│   ├── hooks/                 # Custom React hooks
+│   │   ├── useDeals.ts       # Deals data fetching
+│   │   ├── useLeads.ts       # Leads data fetching
+│   │   ├── useCompanies.ts   # Companies data fetching
+│   │   └── useContacts.ts    # Contacts data fetching
+│   ├── routes/                # Routing configuration
+│   ├── services/              # API service layer
+│   │   ├── deals.ts          # Deals API
+│   │   ├── leads.ts          # Leads API
+│   │   ├── companies.ts      # Companies API
+│   │   └── contacts.ts       # Contacts API
+│   ├── themes/                # Material-UI theming
+│   ├── layout/                # Layout components
+│   ├── views/                 # Page components
+│   │   └── pages/            # Entity modules
+│   │       ├── deals/        # Deals list/detail/edit
+│   │       ├── leads/        # Leads list/detail/edit
+│   │       ├── companies/    # Companies list
+│   │       └── contacts/     # Contacts list
+│   └── utils/                 # Utility functions
+├── dev-backend/               # Express mock server
+├── traffic-crm-backend-reporting/  # NestJS reporting service
+├── e2e/                       # Playwright tests
+│   └── leads-deals-detail.spec.ts  # Smoke tests
+├── scripts/                   # Automation scripts
+└── docs/                      # Documentation
+```
 
 ## 🧪 Testing
 
+### End-to-End Tests (Playwright)
 ```bash
-# Run tests
-npm test
-
-# Run tests with coverage
-npm test -- --coverage
-
-# Run E2E tests (Playwright)
-npx playwright test
+npm run test:smoke     # Run smoke tests (leads/deals detail & edit flows)
+npm run test:e2e       # Run all E2E tests
+npm run test:e2e:ui    # Interactive test UI
+npm run test:e2e:debug # Debug mode with step-through
 ```
 
-## 📦 Building for Production
+### API Smoke Tests
+```bash
+npm run smoke         # Test all API endpoints
+```
+
+### CI/CD Pipeline
+Every PR and push to `main` runs:
+1. **Type Check** - `tsc --noEmit`
+2. **Lint** - ESLint with TypeScript parser
+3. **Build** - Production bundle
+4. **E2E Smoke** - Playwright critical flows
+
+See [CONTRIBUTING.md](./CONTRIBUTING.md) for full CI guidelines.
+
+## 🛠️ Available Scripts
+
+| Command | Description |
+|---------|-------------|
+| `npm start` | Start Vite dev server (port 3002) |
+| `npm run build` | Build for production |
+| `npm run preview` | Preview production build |
+| `npm run typecheck` | Run TypeScript compiler (no emit) |
+| `npm run lint` | Run ESLint on all files |
+| `npm run lint:ts` | Run ESLint on TypeScript files only |
+| `npm run lint:fix` | Fix ESLint issues |
+| `npm run prettier` | Format code with Prettier |
+| `npm run dev:backend` | Start Express mock API |
+| `npm run dev:reporting` | Start NestJS reporting service |
+| `npm run dev:services` | Start Docker services |
+| `npm run dev:all` | Start everything with port check |
+| `npm run check:ports` | Check for port conflicts |
+| `npm run test:smoke` | Run Playwright smoke tests |
+| `npm run test:e2e` | Run all E2E tests |
+| `npm run test:e2e:ui` | Interactive Playwright UI |
+| `npm run test:e2e:debug` | Debug Playwright tests |
+
+## 🚀 Deployment
+
+### Docker Deployment
 
 ```bash
-# Build each app
+# Build image
+docker build -t traffic-crm-frontend .
+
+# Run container
+docker run -p 8080:80 traffic-crm-frontend
+
+# Access at http://localhost:8080
+```
+
+### Vercel Deployment
+
+```bash
+# Build
 npm run build
 
-# The build artifacts will be in the build/ directory
+# Deploy
+vercel --prod
 ```
 
-## 🐛 Troubleshooting
-
-### Common Issues
-
-#### "Cannot find module 'salesApp/App'"
-
-- **Cause:** Sales app not running or Module Federation config issue
-- **Fix:**
-  - Ensure Sales app is running on port 3001
-  - Check `http://localhost:3001/remoteEntry.js` is accessible
-  - Restart the Shell app after starting Sales app
-
-#### "loadShareSync failed" or Module Federation errors
-
-- **Cause:** Shared dependencies not loading correctly
-- **Fix:**
-  - Ensure all apps use the same React version (18.2.0)
-  - Check `craco.config.js` has correct `shared` configuration
-  - Clear browser cache and do hard refresh
-
-#### React Router v7 future flag warnings
-
-- **Cause:** React Router v6 showing warnings about upcoming v7 changes
-- **Fix:** Already resolved - all `BrowserRouter` components include `future` flags:
-
-  ```tsx
-  <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
-  ```
-
-#### Blank screen or 404 errors
-
-- **Cause:** Routing or basename mismatch
-- **Fix:**
-  - Via Shell: Use `/sales`, `/marketing`, `/service` (no trailing slash)
-  - Standalone: Access apps directly on their ports
-  - Check browser console for routing errors
-
-#### "useColorModeTheme must be used within ColorModeProvider"
-
-- **Cause:** Sales app providers not wrapping correctly
-- **Fix:** This has been fixed with `AppWrapper.tsx` - ensure you have latest code
-
-#### Apps not starting
-
-- **Cause:** Port conflicts or dependency issues
-- **Fix:**
-  - Run `./verify-setup.sh` to check which apps are running
-  - Check if ports 3000-3003 are already in use: `lsof -i :3000-3003`
-  - Run `npm install` in each app directory
-
-#### Browser shows old code
-
-- **Cause:** Aggressive browser caching
-- **Fix:**
-  - Hard refresh: `Cmd+Shift+R` (Mac) or `Ctrl+Shift+R` (Windows)
-  - Use Incognito/Private mode
-  - Clear browser cache completely
-
-## 🚀 Next Steps
-
-### 1. Connect to Real Backend API
-
-Currently, all apps use mock data. To connect to your backend:
-
-**Create `.env.local` in each app:**
+### Manual Deployment
 
 ```bash
-# Sales App (.env.local)
-REACT_APP_API_URL=http://localhost:8000/api/v1
-REACT_APP_WS_URL=ws://localhost:8000/ws
+# Build
+npm run build
 
-# Marketing App (.env.local)
-REACT_APP_API_URL=http://localhost:8000/api/v1
-
-# Service App (.env.local)
-REACT_APP_API_URL=http://localhost:8000/api/v1
+# Serve the dist/ directory with any static file server
+# Ensure SPA routing is configured (all routes → index.html)
 ```
 
-**Update API services** to remove mock data fallbacks once backend is ready.
+## 📚 Documentation
 
-### 2. Add Authentication
+- **[Port Management Guide](./docs/port-management.md)** - Complete port configuration and troubleshooting
+- **[API Collection](./Traffic_CRM_API.postman_collection.json)** - Postman API documentation
+- **[Project Status](./PROJECT_STATUS.md)** - Current state, metrics, and achievements
+- **[Validation Checklist](./VALIDATION_CHECKLIST.md)** - Runtime testing guide (12 tests)
+- **[Next Milestones](./NEXT_MILESTONES.md)** - Roadmap and prioritized enhancements
 
-The Sales app has auth scaffolding. Next steps:
+## 🔧 Configuration
 
-- Connect `AuthProvider` to your real auth backend
-- Implement JWT token refresh logic
-- Add OAuth providers (Google, Microsoft) if needed
-- Test RBAC (Role-Based Access Control) with real users
+### Environment Variables
 
-### 3. Increase Test Coverage
-
-Current coverage: **3.1%** → Target: **30%+**
+See `.env.example` for complete list. Key variables:
 
 ```bash
-# Run tests
-npm test
+# Ports
+PORT=3002                              # Frontend dev server
+DEV_BACKEND_PORT=8787                  # Express API
+REPORTING_SERVICE_PORT=8006            # NestJS reporting
 
-# Generate coverage report
-npm test -- --coverage --watchAll=false
+# API URLs
+VITE_APP_API_URL=http://localhost:8787
+VITE_APP_REPORTING_API_URL=http://localhost:8006
+
+# Testing
+PLAYWRIGHT_BASE_URL=http://localhost:3002
 ```
-
-**Priority areas to test:**
-
-- API services (`src/services/*.api.ts`)
-- Custom hooks (`src/hooks/*.ts`)
-- Utility functions (`src/utils/*.ts`)
-- Critical page components
-
-### 4. Add Shared Component Library
-
-Create a shared UI library for common components across all micro-frontends:
-
-```bash
-# Create new package
-mkdir ../traffic-crm-components
-cd ../traffic-crm-components
-npm init -y
-
-# Add to Module Federation shared dependencies
-```
-
-**Components to share:**
-
-- Button, Input, Select (form controls)
-- Modal, Drawer, Tooltip (overlays)
-- DataGrid, Card, Badge (data display)
-- Theme and design tokens
-
-### 5. Set Up CI/CD Pipeline
-
-**Recommended workflow:**
-
-```yaml
-# .github/workflows/ci.yml
-- Run linting (ESLint + Prettier)
-- Run tests with coverage
-- Build all 4 apps
-- Deploy to staging
-- Run E2E tests (Playwright)
-- Deploy to production
-```
-
-### 6. Performance Optimization
-
-- Enable code splitting for large pages
-- Add lazy loading for images
-- Implement virtual scrolling for large tables
-- Add service worker for offline support
-- Monitor Core Web Vitals in production
-
-### 7. Add Monitoring & Analytics
-
-```bash
-# Install monitoring tools
-npm install @sentry/react
-npm install mixpanel-browser
-```
-
-**Track:**
-
-- Error rates and stack traces
-- User behavior and feature usage
-- Performance metrics (Web Vitals)
-- API response times
-
-### 8. Documentation
-
-- API documentation (Swagger/OpenAPI)
-- Component Storybook
-- Architecture decision records (ADRs)
-- Deployment runbooks
-
-## 📚 Development Guidelines
-
-### Adding a New Page
-
-1. Create the page component in `src/pages/`
-2. Add the route in `src/App.tsx`
-3. Create API service in `src/services/`
-4. Create custom hook in `src/hooks/`
-5. Use the hook in your page component
-
-### Adding a New Micro-Frontend
-
-1. Create a new CRA project
-2. Add configuration override with Module Federation
-3. Implement the bootstrap pattern (`index.tsx` → `bootstrap.tsx`)
-4. Expose components via Module Federation
-5. Update the Shell app to consume the new remote
-
-## 📊 Honest Codebase Analysis
-
-### ✅ What's Working Well
-
-**Architecture & Design:**
-
-- **Modern micro-frontend setup** with Webpack Module Federation properly configured
-- **Clean separation of concerns:** API services → React Query hooks → UI components
-- **Well-structured Sales app** with 141 TypeScript files organized by feature
-- **Proper Module Federation bootstrap pattern** implemented across all apps
-- **React Query integration** with optimistic updates, caching, and error handling
-- **TypeScript** used throughout for type safety
-
-**Sales App (Main Application):**
-
-- **Comprehensive CRM features:** Leads, Contacts, Companies, Deals, Calendar, Activities
-- **Modern data fetching:** React Query hooks (useDeals, useLeads, useContacts) with proper cache management
-- **Component library:** 50+ reusable components organized by domain (leads/, deals/, shared/)
-- **Custom hooks:** 11 hooks for business logic separation
-- **API services:** Clean API layer with mock data fallback
-- **Authentication:** Login, protected routes, RBAC
-- **Theme system:** Custom Material-UI theme with dark mode support
-- **Error boundaries:** Graceful error handling
-
-**Code Quality:**
-
-- Detailed JSDoc comments on hooks and API functions
-- Consistent naming conventions
-- Proper TypeScript interfaces
-- Loading and error states handled
-
-### ⚠️ Issues & Technical Debt
-
-**Critical Issues:**
-
-1. **No Backend API** - All API calls fail and fall back to mock data. The `apiClient` points to `http://localhost:4000/api` which doesn't exist.
-2. **Routing Broken in Shell** - Micro-frontend apps show 404 when accessed via Shell app due to basename/routing conflicts
-3. **Duplicate Files** - ~~11 backup/old/new versions of pages~~ **FIXED: All backup files deleted** ✅
-
-**Medium Priority Issues:**
-
-1. **Minimal Test Coverage** - Only 5 test files for 141 source files (~3.5% coverage)
-2. **Marketing & Service Apps** - Minimal implementation (11 files each), just placeholder pages
-3. **No Real Data Persistence** - All changes are lost on refresh (no backend, no localStorage)
-4. **Shell Layout Conflict** - Shell's `ShellLayout` wraps 404 page but not micro-frontend apps, causing inconsistent UX
-5. **AppWrapper Complexity** - Sales app has conditional rendering based on port detection (fragile)
-
-**Low Priority Issues:**
-
-1. **Module Federation Type Errors** - TypeScript type generation failing (warning in console)
-2. **Hard-coded Paths** - ~~Absolute paths in README~~ **FIXED: Now using relative paths** ✅
-3. **No CI/CD** - No automated testing or deployment pipeline
-4. **No Docker Compose** - Running 4 apps manually is cumbersome
-
-### 📈 Code Metrics
-
-```text
-Sales App:     130 TypeScript files (16,084 lines of code)
-Marketing App:  11 TypeScript files
-Service App:    11 TypeScript files
-Shell App:       9 TypeScript files
-
-Total:         161 TypeScript files
-Test Files:      5 (3.1% coverage)
-Backup Files:    0 (all cleaned up ✅)
-Console Logs:   46 instances (should be removed for production)
-TODO/FIXME:      0 (clean ✅)
-
-Largest Files (lines):
-- Deals.tsx: 501 lines
-- Leads.tsx: 428 lines
-- Settings.tsx: 370 lines
-- Notifications.tsx: 351 lines
-- Profile.tsx: 324 lines
-```
-
-### 📂 Detailed File Analysis
-
-**Configuration Files:**
-
-- ✅ `package.json` - 23 dependencies, modern versions
-- ✅ `tsconfig.json` - Proper TypeScript configuration
-- ✅ `craco.config.js` - Module Federation configured correctly
-- ✅ `Dockerfile` - Docker setup present
-- ✅ `docker-compose.yml` - Multi-container setup available
-- ✅ No backup files - All cleaned up
-- ✅ `.eslintrc.json` - ESLint configured with React best practices
-- ✅ `.prettierrc.json` - Prettier configured for consistent formatting
-
-**Source Code Structure:**
-
-- `src/pages/` (15 files) - All major CRM pages implemented
-- `src/components/` (40+ files) - Well-organized component library
-- `src/hooks/` (11 files) - Custom React Query hooks
-- `src/services/` (15 files) - API layer with mock data
-- `src/store/` (4 files) - Redux state management
-- `src/theme/` (6 files) - Material-UI theming
-- `src/utils/` (7 files) - Helper functions with 3 test files
-
-**Issues Found:**
-
-1. ~~**3 backup files**~~ - ✅ **FIXED:** All backup files deleted
-2. ~~**46 console.log statements**~~ - ✅ **REVIEWED:** All are legitimate error/warning logs with proper prefixes
-3. ~~**No ESLint/Prettier**~~ - ✅ **FIXED:** Both configured with sensible defaults
-4. **Large page files** - Deals.tsx (501 lines) and Leads.tsx (428 lines) - Acceptable for feature-rich pages
-5. **Low test coverage** - Only 5 test files for 130 source files (3.1%) - Needs improvement
-6. **No CSS files** - All styling is inline/JSS (good for component isolation ✅)
-7. **Backend mock server** - `dev-backend/` directory exists but not documented
-
-**What's Actually Working:**
-
-- ✅ Complete CRM feature set (Leads, Contacts, Companies, Deals, Calendar, Activities)
-- ✅ Authentication & RBAC
-- ✅ React Query for data fetching
-- ✅ Redux for global state
-- ✅ Material-UI components
-- ✅ TypeScript throughout
-- ✅ Module Federation configured
-- ✅ Docker & deployment scripts
-- ✅ Playwright E2E tests setup
-- ✅ Mock backend server included
-
-### 🎯 Recommendations
-
-**Immediate Actions (High Priority):**
-
-1. ~~**Delete remaining backup files**~~ - ✅ **DONE:** All backup files removed
-2. ~~**Console.log statements**~~ - ✅ **REVIEWED:** All 46 are legitimate error/warning logs
-3. ~~**Add ESLint & Prettier**~~ - ✅ **DONE:** Both configured with best practices
-4. ~~**Fix Shell routing**~~ - ✅ **VERIFIED:** Routes configured correctly (`/sales/*`, `/marketing/*`, `/service/*`)
-5. **Add comprehensive tests** - Increase coverage from 3.1% to at least 30%
-6. **Document dev-backend** - Add instructions for using the mock backend server
-
-**Short-term (This Sprint):**
-
-1. **Data persistence** - Add localStorage or IndexedDB for demo purposes
-2. **Complete Marketing/Service apps** - Build out real features or remove them
-3. **Fix Module Federation types** - Resolve TypeScript generation errors
-4. **Docker Compose** - Create `docker-compose.yml` to run all 4 apps easily
-
-**Long-term (Next Quarter):**
-
-1. **Backend integration** - Connect to real API endpoints
-2. **E2E testing** - Expand Playwright tests to cover all user flows
-3. **CI/CD pipeline** - GitHub Actions for automated testing and deployment
-4. **Performance optimization** - Code splitting, lazy loading, bundle analysis
-
-### 💡 What This Project Actually Is
-
-**Reality Check:**
-
-- This is a **frontend-only demo** with no real backend
-- All data is **mock data** that resets on refresh
-- The micro-frontend architecture is **correctly implemented** but the apps are **not fully integrated**
-- The Sales app is **production-quality code** but needs a backend
-- Marketing and Service apps are **minimal placeholders**
-
-**Best Use Cases:**
-
-- ✅ Learning micro-frontend architecture
-- ✅ Demonstrating React Query patterns
-- ✅ Showcasing modern React/TypeScript practices
-- ✅ Portfolio piece for frontend architecture
-- ❌ Production CRM system (needs backend)
-- ❌ Real business use (no data persistence)
-
-### 🔍 Bottom Line
-
-**The Good:** Well-architected frontend with modern patterns, clean code, and proper separation of concerns. The Sales app is genuinely well-built with comprehensive features.
-
-**The Fixed:** ✅ All backup files deleted, ✅ ESLint & Prettier configured, ✅ Console logs reviewed (all legitimate), ✅ Shell routing verified
-
-**The Remaining:** Low test coverage (3.1%), no real backend, Marketing/Service apps are placeholders
-
-**The Verdict:** This is a **production-ready frontend architecture** with proper tooling and clean code. Ready for backend integration and expanded test coverage.
-
-**Grade: A-** (would be A with 30%+ test coverage and real backend)
 
 ## 🤝 Contributing
 
-1. Create a feature branch
-2. Make your changes
-3. Test locally (all apps running)
-4. Submit a pull request
+See [CONTRIBUTING.md](./CONTRIBUTING.md) for detailed guidelines on:
+- Development setup and workflow
+- Code quality checks (typecheck, lint, build)
+- Testing requirements (E2E smoke tests)
+- PR checklist and commit conventions
+- Architecture and code style guidelines
+
+Quick start:
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Ensure all CI gates pass locally:
+   ```bash
+   npm run typecheck  # ✅ 0 errors
+   npm run lint       # ✅ 0 warnings
+   npm run build      # ✅ successful
+   npm run test:smoke # ✅ all passing
+   ```
+4. Commit with conventional format (`feat:`, `fix:`, `docs:`, etc.)
+5. Push to branch and open a Pull Request
+
+## 🐛 Troubleshooting
+
+### Port Conflicts
+
+```bash
+# Check for conflicts
+npm run check:ports
+
+# If conflicts exist, update .env with available ports
+```
+
+### Build Issues
+
+```bash
+# Clear cache and rebuild
+rm -rf node_modules dist
+npm install
+npm run build
+```
+
+### TypeScript Errors
+
+```bash
+# Type check
+npx tsc --noEmit
+```
 
 ## 📄 License
 
-This project is proprietary software.
+[Your License Here]
 
-## 🆘 Support
+## 🙏 Acknowledgments
 
-For issues or questions, please contact the development team.
+Built with [Berry Material](https://github.com/codedthemes/berry-free-react-admin-template) as the base UI framework.
+
+---
+
+**Traffic CRM** - Modern CRM for performance marketers

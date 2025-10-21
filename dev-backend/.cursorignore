@@ -1,0 +1,16 @@
+# Exclude heavy and generated files from backend indexing
+node_modules/
+
+# Build outputs
+build/
+dist/
+coverage/
+
+# Logs and temp
+*.log
+logs/
+.tmp/
+.cache/
+
+# Misc
+.DS_Store
