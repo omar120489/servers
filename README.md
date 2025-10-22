@@ -341,6 +341,21 @@ npm run build
 npx tsc --noEmit
 ```
 
+## 📚 Documentation
+
+### Active Documentation
+- [README](./README.md) - Main project documentation
+- [CONTRIBUTING](./CONTRIBUTING.md) - Contribution guidelines  
+- [PROJECT_STATUS](./PROJECT_STATUS.md) - Current project status & metrics
+- [NEXT_MILESTONES](./NEXT_MILESTONES.md) - Development roadmap
+- [VALIDATION_CHECKLIST](./VALIDATION_CHECKLIST.md) - Runtime testing guide
+- [Port Management](./docs/port-management.md) - Port configuration guide
+
+### Historical Archive
+Migration documentation and step-by-step verification reports are preserved in [`docs/archive/migration/`](./docs/archive/migration/) for reference.
+
+---
+
 ## 📄 License
 
 [Your License Here]

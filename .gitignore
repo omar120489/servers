@@ -37,3 +37,8 @@ yarn-error.log*
 
 # Deployment directories
 .deploy
+
+# Playwright test artifacts (do not commit)
+test-results/
+playwright-report/
+playwright/.cache/

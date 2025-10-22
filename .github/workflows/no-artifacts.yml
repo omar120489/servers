@@ -1,0 +1,41 @@
+name: No Test Artifacts in PR
+
+on:
+    pull_request:
+        paths:
+            - "**/*.md"
+            - "test-results/**"
+            - "playwright-report/**"
+
+jobs:
+    guard:
+        name: Block Test Artifacts
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+              with:
+                  fetch-depth: 0
+
+            - name: Check for Playwright artifacts
+              run: |
+                  set -e
+                  bad=0
+
+                  # Check if test-results/ or playwright-report/ are tracked
+                  if git ls-files --error-unmatch 'test-results/**' >/dev/null 2>&1; then
+                    echo "::error::❌ test-results/ must not be committed. Add to .gitignore"
+                    bad=1
+                  fi
+
+                  if git ls-files --error-unmatch 'playwright-report/**' >/dev/null 2>&1; then
+                    echo "::error::❌ playwright-report/ must not be committed. Add to .gitignore"
+                    bad=1
+                  fi
+
+                  if [ "$bad" -eq 1 ]; then
+                    echo "::error::Playwright artifacts detected. Remove with: git rm -r --cached test-results/ playwright-report/"
+                    exit 1
+                  fi
+
+                  echo "✅ No Playwright artifacts found"
