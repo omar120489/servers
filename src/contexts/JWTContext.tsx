@@ -1,10 +1,8 @@
-import { createContext, useEffect, useCallback, type ReactNode } from 'react';
-import { jwtDecode } from 'jwt-decode';
-
+import { createContext, useEffect, useCallback, useMemo, type ReactNode } from 'react';
 // project imports
 import Loader from 'ui-component/Loader';
 import { authApi } from 'utils/axios';
-import axiosServices from 'utils/axios';
+import { setSession, verifyToken } from './jwt-helpers';
 import { useDispatch, useSelector } from 'store';
 import { login as loginAction, logout as logoutAction, initialize } from 'store/slices/account';
 import type { AuthContextType } from 'types/auth';
@@ -14,37 +12,7 @@ import type { AuthContextType } from 'types/auth';
 const JWTContext = createContext<AuthContextType | null>(null);
 
 interface JWTProviderProps {
-  children: ReactNode;
-}
-
-function verifyToken(serviceToken: string): boolean {
-  if (!serviceToken) {
-    return false;
-  }
-
-  try {
-    const decoded = jwtDecode(serviceToken);
-
-    // Ensure 'exp' exists and compare it to the current timestamp
-    if (!decoded.exp) {
-      throw new Error("Token does not contain 'exp' property.");
-    }
-
-    return decoded.exp > Date.now() / 1000;
-  } catch (error) {
-    console.error('Token verification failed:', error);
-    return false;
-  }
-}
-
-function setSession(serviceToken: string | null) {
-  if (serviceToken) {
-    localStorage.setItem('serviceToken', serviceToken);
-    axiosServices.defaults.headers.common.Authorization = `Bearer ${serviceToken}`;
-  } else {
-    localStorage.removeItem('serviceToken');
-    delete axiosServices.defaults.headers.common.Authorization;
-  }
+  readonly children: ReactNode;
 }
 
 export function JWTProvider({ children }: JWTProviderProps) {
@@ -54,19 +22,26 @@ export function JWTProvider({ children }: JWTProviderProps) {
   useEffect(() => {
     const init = async () => {
       try {
-        const serviceToken = window.localStorage.getItem('serviceToken');
+        const serviceToken = globalThis.localStorage.getItem('serviceToken');
 
-        if (serviceToken && verifyToken(serviceToken)) {
-          setSession(serviceToken);
-          const response = await authApi.getProfile();
-          const { user: userProfile } = response;
+        if (serviceToken) {
+          if (verifyToken(serviceToken)) {
+            setSession(serviceToken);
+            const response = await authApi.getProfile();
+            const { user: userProfile } = response;
 
-          dispatch(loginAction({ user: userProfile }));
-        } else {
-          dispatch(initialize());
+            dispatch(loginAction({ user: userProfile }));
+            return;
+          }
+
+          console.warn('Invalid or expired serviceToken detected, clearing session');
+          setSession(null);
         }
+
+        dispatch(initialize());
       } catch (err) {
         console.error('Auth initialization failed:', err);
+        setSession(null);
         dispatch(initialize());
       }
     };
@@ -87,7 +62,8 @@ export function JWTProvider({ children }: JWTProviderProps) {
 
   const register = useCallback(
     async (email: string, password: string, firstName: string, lastName: string) => {
-      // todo: this flow need to be recode as it not verified
+      // Registration flow - stores users locally for dev/demo purposes
+      // Production: This should call backend API and handle proper user creation
       const response = await authApi.register({
         email,
         password,
@@ -98,10 +74,10 @@ export function JWTProvider({ children }: JWTProviderProps) {
       let users = response.data;
 
       if (
-        window.localStorage.getItem('users') !== undefined &&
-        window.localStorage.getItem('users') !== null
+        globalThis.localStorage.getItem('users') !== undefined &&
+        globalThis.localStorage.getItem('users') !== null
       ) {
-        const localUsers = window.localStorage.getItem('users');
+        const localUsers = globalThis.localStorage.getItem('users');
         users = [
           ...JSON.parse(localUsers!),
           {
@@ -112,7 +88,7 @@ export function JWTProvider({ children }: JWTProviderProps) {
         ];
       }
 
-      window.localStorage.setItem('users', JSON.stringify(users));
+      globalThis.localStorage.setItem('users', JSON.stringify(users));
     },
     []
   );
@@ -132,21 +108,24 @@ export function JWTProvider({ children }: JWTProviderProps) {
     console.log('Update profile not implemented');
   }, []);
 
+  const contextValue: AuthContextType = useMemo(
+    () => ({
+      isLoggedIn,
+      isInitialized,
+      user,
+      login,
+      logout,
+      register,
+      resetPassword,
+      updateProfile
+    }),
+    [isLoggedIn, isInitialized, user, login, logout, register, resetPassword, updateProfile]
+  );
+
   // Show loader while initializing
   if (!isInitialized) {
     return <Loader />;
   }
-
-  const contextValue: AuthContextType = {
-    isLoggedIn,
-    isInitialized,
-    user,
-    login,
-    logout,
-    register,
-    resetPassword,
-    updateProfile
-  };
 
   return <JWTContext.Provider value={contextValue}>{children}</JWTContext.Provider>;
 }

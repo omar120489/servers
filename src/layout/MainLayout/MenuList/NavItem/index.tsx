@@ -21,11 +21,13 @@ import type { NavItemType } from 'types/menu';
 
 import FiberManualRecordIcon from '@mui/icons-material/FiberManualRecord';
 
+import NotificationsBadge from './NotificationsBadge';
+
 interface NavItemProps {
-  item: NavItemType;
-  level?: number;
-  isParents?: boolean;
-  setSelectedID?: () => void;
+  readonly item: NavItemType;
+  readonly level?: number;
+  readonly isParents?: boolean;
+  readonly setSelectedID?: () => void;
 }
 
 export default function NavItem({
@@ -66,18 +68,26 @@ export default function NavItem({
   }, []);
 
   const Icon = item.icon;
-  const itemIcon = Icon ? (
-    <Icon
-      stroke={1.5}
-      size={drawerOpen ? '20px' : '24px'}
-      style={{ ...(isHorizontal && isParents && { fontSize: 20, stroke: '1.5' }) }}
-    />
-  ) : (
-    <FiberManualRecordIcon
-      sx={{ width: isSelected ? 8 : 6, height: isSelected ? 8 : 6 }}
-      fontSize={level > 0 ? 'inherit' : 'medium'}
-    />
-  );
+  const iconSize = drawerOpen ? '20px' : '24px';
+  const iconStroke = 1.5;
+  const iconStyle = isHorizontal && isParents ? { fontSize: 20, stroke: '1.5' } : undefined;
+  
+  // Extract icon rendering logic to reduce nesting
+  let itemIcon;
+  if (Icon) {
+    if (item.id === 'notifications') {
+      itemIcon = <NotificationsBadge icon={Icon} size={iconSize} stroke={iconStroke} style={iconStyle} />;
+    } else {
+      itemIcon = <Icon stroke={iconStroke} size={iconSize} style={iconStyle} />;
+    }
+  } else {
+    itemIcon = (
+      <FiberManualRecordIcon
+        sx={{ width: isSelected ? 8 : 6, height: isSelected ? 8 : 6 }}
+        fontSize={level > 0 ? 'inherit' : 'medium'}
+      />
+    );
+  }
 
   const itemTarget = item.target ? '_blank' : '_self';
 
@@ -200,7 +210,7 @@ export default function NavItem({
               }),
 
             ...theme.applyStyles('dark', {
-              color: isSelected && drawerOpen ? 'text.primary' : 'text.primary',
+              color: 'text.primary',
               ...(!drawerOpen &&
                 level === 1 && {
                   '&:hover': { bgcolor: withAlpha(theme.palette.secondary.main, 0.25) },

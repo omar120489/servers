@@ -1,0 +1,2 @@
+import{importShared as r}from"./__federation_fn_import-CJIdJiQv.js";import{c as t}from"./createSvgIcon-J8zf_NKi.js";import{j as a}from"./useForkRef-BC7kqYKT.js";await r("react");const i=t(a.jsx("path",{d:"M15.41 16.09l-4.58-4.59 4.58-4.59L14 5.5l-6 6 6 6z"}));await r("react");const m=t(a.jsx("path",{d:"M8.59 16.34l4.58-4.59-4.58-4.59L10 5.75l6 6-6 6z"}));export{i as K,m as a};
+//# sourceMappingURL=KeyboardArrowRight-Ti3LqYpn.js.map

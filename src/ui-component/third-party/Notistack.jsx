@@ -33,7 +33,7 @@ export default function Notistack({ children }) {
             }
           : undefined
       }
-      hideIconVariant={snackbar.iconVariant === 'hide' ? true : false}
+      hideIconVariant={snackbar.iconVariant === 'hide'}
     >
       {children}
     </SnackbarProvider>

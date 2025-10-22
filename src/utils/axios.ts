@@ -37,6 +37,8 @@ axiosServices.interceptors.response.use(
   (response: AxiosResponse) => response,
   (error) => {
     if (error.response?.status === 401 && !window.location.href.includes('/login')) {
+      localStorage.removeItem('serviceToken');
+      delete axiosServices.defaults.headers.common.Authorization;
       window.location.pathname = '/login';
     }
     return Promise.reject((error.response && error.response.data) || 'Wrong Services');

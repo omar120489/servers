@@ -1,0 +1,2 @@
+import{a as e,b as r,c as o,d as c}from"./axios-CKLPSsiI.js";import{g as u,m as d}from"./attribution-BSL5szA1.js";const n="/api/leads";async function p(t){return e(n,{params:t})}async function f(t){return e(`${n}/${t}`)}async function l(t){const a=u(),s=a?{...t,attribution:a}:t,i=await c(n,s);return a&&d(),i}async function m(t,a){return o(`${n}/${t}`,a)}async function y(t){return r(`${n}/${t}`)}const L={listLeads:p,getLead:f,createLead:l,updateLead:m,deleteLead:y};export{L as l};
+//# sourceMappingURL=leads-BgdtH0Oz.js.map

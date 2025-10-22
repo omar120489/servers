@@ -2,11 +2,10 @@ import { createRoot } from 'react-dom/client';
 
 // third party
 import { Provider } from 'react-redux';
-import { PersistGate } from 'redux-persist/integration/react';
 
 // project imports
 import App from 'App';
-import { store, persister } from 'store';
+import { store } from 'store';
 import * as serviceWorker from 'serviceWorker';
 import reportWebVitals from 'reportWebVitals';
 import { ConfigProvider } from 'contexts/ConfigContext';
@@ -48,11 +47,9 @@ const container = document.getElementById('root');
 const root = createRoot(container);
 root.render(
   <Provider store={store}>
-    <PersistGate loading={null} persistor={persister}>
       <ConfigProvider>
         <App />
       </ConfigProvider>
-    </PersistGate>
   </Provider>
 );
 

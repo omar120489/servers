@@ -1,0 +1,2 @@
+import{a3 as f,T as n,E as c}from"./useForkRef-BC7kqYKT.js";import{u as m}from"./useThemeProps-BI4UimO6.js";import{importShared as i}from"./__federation_fn_import-CJIdJiQv.js";function p({props:t,name:a}){return m({props:t,name:a,defaultTheme:f,themeId:n})}const s=await i("react");function E(t){const{children:a,defer:e=!1,fallback:o=null}=t,[u,r]=s.useState(!1);return c(()=>{e||r(!0)},[e]),s.useEffect(()=>{e&&r(!0)},[e]),u?a:o}export{E as N,p as u};
+//# sourceMappingURL=NoSsr-BEcnbA1C.js.map

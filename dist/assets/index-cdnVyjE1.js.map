@@ -1,1 +1,0 @@
-{"version":3,"file":"index-cdnVyjE1.js","sources":["../../node_modules/@mui/x-internals/esm/reactMajor/index.js"],"sourcesContent":["import * as React from 'react';\nexport default parseInt(React.version, 10);"],"names":["React","importShared","reactMajor"],"mappings":"oEAAA,MAAAA,EAAA,MAAAC,EAAA,OAAA,EACAC,EAAe,SAASF,EAAM,QAAS,EAAE","x_google_ignoreList":[0]}

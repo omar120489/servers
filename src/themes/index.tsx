@@ -76,7 +76,7 @@ export function createAppTheme(
 // ==============================|| THEME CUSTOMIZATION PROVIDER ||============================== //
 
 interface ThemeCustomizationProps {
-  children: ReactNode;
+  readonly children: ReactNode;
 }
 
 export default function ThemeCustomization({ children }: ThemeCustomizationProps) {

@@ -1,7 +1,8 @@
-import { useCallback, useMemo, type ReactNode } from 'react';
+import { useCallback, useMemo, useState, type ReactNode } from 'react';
 import { Link as RouterLink, useSearchParams } from 'react-router-dom';
 import Button from '@mui/material/Button';
 import Chip from '@mui/material/Chip';
+import Stack from '@mui/material/Stack';
 import InputAdornment from '@mui/material/InputAdornment';
 import Box from '@mui/material/Box';
 import TextField from '@mui/material/TextField';
@@ -15,10 +16,22 @@ import {
   type GridPaginationModel,
   type GridRenderCellParams
 } from '@mui/x-data-grid';
+import { useSnackbar } from 'notistack';
 
 import MainCard from 'ui-component/cards/MainCard';
+import ExportMenu from 'ui-component/ExportMenu';
+import { FilterPanel, type FilterConfig, type FilterValues } from 'ui-component/FilterPanel';
 import { useDeals } from 'hooks/useDeals';
+import { useFilterPresets } from 'hooks/useFilterPresets';
 import type { Deal, DealQuery } from 'types/api';
+import {
+  exportToXLSX,
+  exportToPDF,
+  buildExportFilename,
+  formatCurrencyForExport,
+  formatDateForExport,
+  type ExportColumn
+} from 'utils/exporters';
 
 const DEFAULT_PAGE_SIZE = 10;
 
@@ -70,8 +83,50 @@ function getStatusColor(
   return 'default';
 }
 
+// Filter configuration for deals
+const DEAL_FILTER_CONFIG: FilterConfig[] = [
+  {
+    label: 'Close Date',
+    type: 'date-range',
+    field: 'date'
+  },
+  {
+    label: 'Amount',
+    type: 'number-range',
+    field: 'amount'
+  },
+  {
+    label: 'Stages',
+    type: 'multi-select',
+    field: 'stages',
+    options: [
+      { value: 'Lead', label: 'Lead' },
+      { value: 'Qualified', label: 'Qualified' },
+      { value: 'Proposal', label: 'Proposal' },
+      { value: 'Negotiation', label: 'Negotiation' },
+      { value: 'Closed Won', label: 'Closed Won' },
+      { value: 'Closed Lost', label: 'Closed Lost' }
+    ]
+  },
+  {
+    label: 'Statuses',
+    type: 'multi-select',
+    field: 'statuses',
+    options: [
+      { value: 'Open', label: 'Open' },
+      { value: 'Won', label: 'Won' },
+      { value: 'Lost', label: 'Lost' },
+      { value: 'Pending', label: 'Pending' }
+    ]
+  }
+];
+
 export default function DealsListPage() {
   const [searchParams, setSearchParams] = useSearchParams();
+  const { presets, savePreset } = useFilterPresets('deals-filter-presets');
+
+  // Local filter values state
+  const [filterValues, setFilterValues] = useState<FilterValues>({});
 
   const initialQuery = useMemo<DealQuery>(() => {
     const getNumber = (key: string, fallback: number) => {
@@ -84,12 +139,33 @@ export default function DealsListPage() {
       return value && value.trim().length > 0 ? value : undefined;
     };
 
+    const getArray = (key: string) => {
+      const value = searchParams.get(key);
+      return value ? value.split(',') : [];
+    };
+
+    // Initialize filter values from URL
+    const initialFilters: FilterValues = {
+      date_from: getString('date_from'),
+      date_to: getString('date_to'),
+      amount_min: searchParams.get('amount_min') ? Number(searchParams.get('amount_min')) : undefined,
+      amount_max: searchParams.get('amount_max') ? Number(searchParams.get('amount_max')) : undefined,
+      stages: getArray('stages'),
+      statuses: getArray('statuses')
+    };
+
+    setFilterValues(initialFilters);
+
     return {
       page: getNumber('page', 1),
       size: getNumber('size', DEFAULT_PAGE_SIZE),
       search: searchParams.get('search') ?? '',
-      dateFrom: getString('dateFrom'),
-      dateTo: getString('dateTo'),
+      date_from: getString('date_from'),
+      date_to: getString('date_to'),
+      amount_min: searchParams.get('amount_min') ? Number(searchParams.get('amount_min')) : undefined,
+      amount_max: searchParams.get('amount_max') ? Number(searchParams.get('amount_max')) : undefined,
+      stages: getString('stages'),
+      statuses: getString('statuses'),
       stage: getString('stage') as DealQuery['stage'],
       ownerId: getString('ownerId')
     };
@@ -102,13 +178,13 @@ export default function DealsListPage() {
   const syncSearchParams = useCallback(
     (patch: Record<string, string | undefined>) => {
       const next = new URLSearchParams(searchParams);
-      Object.entries(patch).forEach(([key, value]) => {
+      for (const [key, value] of Object.entries(patch)) {
         if (value === undefined || value === '') {
           next.delete(key);
         } else {
           next.set(key, value);
         }
-      });
+      }
       setSearchParams(next);
     },
     [searchParams, setSearchParams]
@@ -125,6 +201,47 @@ export default function DealsListPage() {
       View reports
     </Button>
   );
+
+  const { enqueueSnackbar } = useSnackbar();
+
+  const exportColumns: ExportColumn[] = useMemo(
+    () => [
+      { field: 'id', headerName: 'ID' },
+      { field: 'name', headerName: 'Deal Name' },
+      { field: 'amount', headerName: 'Amount', valueFormatter: formatCurrencyForExport },
+      { field: 'stage', headerName: 'Stage' },
+      { field: 'status', headerName: 'Status' },
+      { field: 'closeDate', headerName: 'Close Date', valueFormatter: formatDateForExport },
+      { field: 'ownerId', headerName: 'Owner' },
+      { field: 'grossRevenue', headerName: 'Gross Revenue', valueFormatter: formatCurrencyForExport },
+      { field: 'directCost', headerName: 'Direct Cost', valueFormatter: formatCurrencyForExport },
+      { field: 'netProfit', headerName: 'Net Profit', valueFormatter: formatCurrencyForExport },
+      { field: 'updatedAt', headerName: 'Updated', valueFormatter: formatDateForExport }
+    ],
+    []
+  );
+
+  const handleExportXLSX = useCallback(() => {
+    try {
+      const filename = buildExportFilename('deals', 'xlsx', query.search ? { search: query.search } : undefined);
+      exportToXLSX(deals, exportColumns, filename);
+      enqueueSnackbar(`Exported ${deals.length} deals to ${filename}`, { variant: 'success' });
+    } catch (error) {
+      console.error('Export failed:', error);
+      enqueueSnackbar('Export failed. Please try again.', { variant: 'error' });
+    }
+  }, [deals, exportColumns, query.search, enqueueSnackbar]);
+
+  const handleExportPDF = useCallback(() => {
+    try {
+      const filename = buildExportFilename('deals', 'pdf', query.search ? { search: query.search } : undefined);
+      exportToPDF(deals, exportColumns, filename, 'Deals Report');
+      enqueueSnackbar(`Exported ${deals.length} deals to ${filename}`, { variant: 'success' });
+    } catch (error) {
+      console.error('Export failed:', error);
+      enqueueSnackbar('Export failed. Please try again.', { variant: 'error' });
+    }
+  }, [deals, exportColumns, query.search, enqueueSnackbar]);
 
   const paginationModel = useMemo(
     () => ({
@@ -165,13 +282,51 @@ export default function DealsListPage() {
     void refetch();
   }, [refetch]);
 
-  const hasFilters = useMemo(() => {
-    const searchValue = (query.search ?? '').trim();
-    return Boolean(searchValue || query.dateFrom || query.dateTo || query.stage || query.ownerId);
-  }, [query.dateFrom, query.dateTo, query.ownerId, query.search, query.stage]);
+  // Filter handlers
+  const handleFilterChange = useCallback((values: FilterValues) => {
+    setFilterValues(values);
+  }, []);
+
+  const handleApplyFilters = useCallback(() => {
+    const patch: Record<string, string | undefined> = {
+      page: '1', // Reset to page 1 on filter change
+      date_from: filterValues.date_from as string | undefined,
+      date_to: filterValues.date_to as string | undefined,
+      amount_min: filterValues.amount_min === undefined ? undefined : String(filterValues.amount_min),
+      amount_max: filterValues.amount_max === undefined ? undefined : String(filterValues.amount_max),
+      stages: Array.isArray(filterValues.stages) && filterValues.stages.length > 0
+        ? filterValues.stages.join(',')
+        : undefined,
+      statuses: Array.isArray(filterValues.statuses) && filterValues.statuses.length > 0
+        ? filterValues.statuses.join(',')
+        : undefined
+    };
+
+    syncSearchParams(patch);
+
+    updateQuery({
+      ...query,
+      page: 1,
+      date_from: filterValues.date_from as string | undefined,
+      date_to: filterValues.date_to as string | undefined,
+      amount_min: filterValues.amount_min as number | undefined,
+      amount_max: filterValues.amount_max as number | undefined,
+      stages: Array.isArray(filterValues.stages) && filterValues.stages.length > 0
+        ? filterValues.stages.join(',')
+        : undefined,
+      statuses: Array.isArray(filterValues.statuses) && filterValues.statuses.length > 0
+        ? filterValues.statuses.join(',')
+        : undefined
+    });
+  }, [filterValues, query, syncSearchParams, updateQuery]);
+
+  const handleLoadPreset = useCallback((presetFilters: FilterValues) => {
+    setFilterValues(presetFilters);
+  }, []);
 
   const handleClearFilters = useCallback(() => {
     const nextSize = query.size ?? DEFAULT_PAGE_SIZE;
+    setFilterValues({});
     updateQuery({
       page: 1,
       size: nextSize,
@@ -179,7 +334,13 @@ export default function DealsListPage() {
       dateFrom: undefined,
       dateTo: undefined,
       stage: undefined,
-      ownerId: undefined
+      ownerId: undefined,
+      date_from: undefined,
+      date_to: undefined,
+      amount_min: undefined,
+      amount_max: undefined,
+      stages: undefined,
+      statuses: undefined
     });
     syncSearchParams({
       page: '1',
@@ -188,9 +349,95 @@ export default function DealsListPage() {
       dateFrom: undefined,
       dateTo: undefined,
       stage: undefined,
-      ownerId: undefined
+      ownerId: undefined,
+      date_from: undefined,
+      date_to: undefined,
+      amount_min: undefined,
+      amount_max: undefined,
+      stages: undefined,
+      statuses: undefined
     });
   }, [query.size, syncSearchParams, updateQuery]);
+
+  // Generate active filter chips
+  const activeFilterChips = useMemo(() => {
+    const chips: Array<{ key: string; label: string; onDelete: () => void }> = [];
+
+    if (query.date_from) {
+      chips.push({
+        key: 'date_from',
+        label: `From: ${query.date_from}`,
+        onDelete: () => {
+          const updated = { ...filterValues, date_from: undefined };
+          setFilterValues(updated);
+          syncSearchParams({ date_from: undefined });
+          updateQuery({ ...query, date_from: undefined });
+        }
+      });
+    }
+    if (query.date_to) {
+      chips.push({
+        key: 'date_to',
+        label: `To: ${query.date_to}`,
+        onDelete: () => {
+          const updated = { ...filterValues, date_to: undefined };
+          setFilterValues(updated);
+          syncSearchParams({ date_to: undefined });
+          updateQuery({ ...query, date_to: undefined });
+        }
+      });
+    }
+    if (query.amount_min) {
+      chips.push({
+        key: 'amount_min',
+        label: `Min: ${formatCurrency(query.amount_min)}`,
+        onDelete: () => {
+          const updated = { ...filterValues, amount_min: undefined };
+          setFilterValues(updated);
+          syncSearchParams({ amount_min: undefined });
+          updateQuery({ ...query, amount_min: undefined });
+        }
+      });
+    }
+    if (query.amount_max) {
+      chips.push({
+        key: 'amount_max',
+        label: `Max: ${formatCurrency(query.amount_max)}`,
+        onDelete: () => {
+          const updated = { ...filterValues, amount_max: undefined };
+          setFilterValues(updated);
+          syncSearchParams({ amount_max: undefined });
+          updateQuery({ ...query, amount_max: undefined });
+        }
+      });
+    }
+    if (query.stages) {
+      chips.push({
+        key: 'stages',
+        label: `Stages: ${query.stages}`,
+        onDelete: () => {
+          const updated = { ...filterValues, stages: [] };
+          setFilterValues(updated);
+          syncSearchParams({ stages: undefined });
+          updateQuery({ ...query, stages: undefined });
+        }
+      });
+    }
+    if (query.statuses) {
+      chips.push({
+        key: 'statuses',
+        label: `Statuses: ${query.statuses}`,
+        onDelete: () => {
+          const updated = { ...filterValues, statuses: [] };
+          setFilterValues(updated);
+          syncSearchParams({ statuses: undefined });
+          updateQuery({ ...query, statuses: undefined });
+        }
+      });
+    }
+
+    return chips;
+  }, [query, filterValues, syncSearchParams, updateQuery]);
 
   const columns = useMemo<GridColDef<Deal>[]>(
     () => [
@@ -350,6 +597,11 @@ export default function DealsListPage() {
               justifyContent: { xs: 'flex-start', md: 'flex-end' }
             }}
           >
+            <ExportMenu
+              onExportXLSX={handleExportXLSX}
+              onExportPDF={handleExportPDF}
+              disabled={loading || deals.length === 0}
+            />
             <Button
               variant="outlined"
               startIcon={<RefreshIcon />}
@@ -362,14 +614,32 @@ export default function DealsListPage() {
           </Box>
         </Box>
 
-        {hasFilters && (
-          <Chip
-            label="Active filters"
-            onDelete={handleClearFilters}
-            color="primary"
-            size="small"
-            sx={{ alignSelf: 'flex-start' }}
-          />
+        {/* Advanced Filters Panel */}
+        <FilterPanel
+          filters={DEAL_FILTER_CONFIG}
+          values={filterValues}
+          onChange={handleFilterChange}
+          onApply={handleApplyFilters}
+          onClear={handleClearFilters}
+          showPresets={true}
+          presets={presets}
+          onSavePreset={savePreset}
+          onLoadPreset={handleLoadPreset}
+        />
+
+        {/* Active Filter Chips */}
+        {activeFilterChips.length > 0 && (
+          <Stack direction="row" spacing={1} flexWrap="wrap" sx={{ gap: 1 }}>
+            {activeFilterChips.map((chip) => (
+              <Chip
+                key={chip.key}
+                label={chip.label}
+                onDelete={chip.onDelete}
+                color="primary"
+                size="small"
+              />
+            ))}
+          </Stack>
         )}
 
         {Boolean(error) && (

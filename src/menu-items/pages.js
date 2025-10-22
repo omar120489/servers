@@ -9,7 +9,8 @@ import {
   IconShieldLock,
   IconFileInvoice,
   IconUsers,
-  IconChartLine
+  IconChartLine,
+  IconCurrencyDollar
 } from '@tabler/icons-react';
 
 // constant
@@ -23,7 +24,8 @@ const icons = {
   IconShieldLock,
   IconFileInvoice,
   IconUsers,
-  IconChartLine
+  IconChartLine,
+  IconCurrencyDollar
 };
 
 // ==============================|| EXTRA PAGES MENU ITEMS ||============================== //
@@ -74,6 +76,22 @@ const pages = {
       url: '/analytics',
       icon: icons.IconChartLine,
       breadcrumbs: true
+    },
+    {
+      id: 'pnl-analytics',
+      title: 'P&L Analytics',
+      type: 'item',
+      url: '/analytics/pnl',
+      icon: icons.IconCurrencyDollar,
+      breadcrumbs: true
+    },
+    {
+      id: 'notifications',
+      title: 'notifications',
+      type: 'item',
+      url: '/notifications',
+      icon: icons.IconBellRinging,
+      breadcrumbs: false
     },
     {
       id: 'maintenance',

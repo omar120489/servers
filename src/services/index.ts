@@ -2,3 +2,8 @@ export * as dealsService from './deals';
 export * as leadsService from './leads';
 export * as contactsService from './contacts';
 export * as companiesService from './companies';
+export * as commentsService from './comments';
+export * as attachmentsService from './attachments';
+export * as notificationsService from './notifications';
+export * as pnlService from './pnl';
+export * as journeyService from './journey';

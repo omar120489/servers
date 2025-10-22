@@ -1,2 +1,0 @@
-import{importShared as s}from"./__federation_fn_import-ROHmt-Wr.js";import{j as r}from"./useForkRef-BcC6EfDH.js";import{P as o,A as t}from"./App-CfytcKQk.js";import{s as e,p as i}from"./useAuth-BzjTK7K8.js";import{C as p}from"./useConfig-C9OqiKor.js";const{Provider:a}=await s("react-redux");function l(){return r.jsx(a,{store:e,children:r.jsx(o,{loading:null,persistor:i,children:r.jsx(p,{children:r.jsx(t,{})})})})}export{l as default};
-//# sourceMappingURL=__federation_expose_App-DYD9NH9T.js.map
