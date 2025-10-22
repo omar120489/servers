@@ -84,19 +84,29 @@ export default function MainLayout() {
         menuOrientation={menuOrientation}
         open={drawerOpen}
       >
-        <Container
-          maxWidth={container ? 'lg' : false}
+        <Box
+          component="main"
           sx={{
-            ...(!container && { px: { xs: 0 } }),
-            minHeight: 'calc(100vh - 128px)',
-            display: 'flex',
-            flexDirection: 'column'
+            flex: 1,
+            overflowX: 'hidden', // hard stop for horizontal scroll
+            overflowY: 'auto',
+            width: '100%'
           }}
         >
-          <BreadcrumbsComponent />
-          <Outlet />
-          <Footer />
-        </Container>
+          <Container
+            maxWidth={container ? 'lg' : false}
+            sx={{
+              ...(!container && { px: { xs: 0 } }),
+              minHeight: 'calc(100vh - 128px)',
+              display: 'flex',
+              flexDirection: 'column'
+            }}
+          >
+            <BreadcrumbsComponent />
+            <Outlet />
+            <Footer />
+          </Container>
+        </Box>
       </StyledMainContent>
     </Box>
   );
